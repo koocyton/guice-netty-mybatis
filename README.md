@@ -1,2 +1,3 @@
-# guice-undertow-example
-Guice+Undertow+Mybatis+Redis+Ehcache Example
+# guice-netty-mybatis
+
+Guice+netty+Mybatis+Redis Example
