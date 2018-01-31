@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.doopp.gauss.common.dao.UserDao">
+
+    <select id="fetchList" resultType="com.doopp.gauss.common.entity.User">
+        SELECT
+          *
+        FROM
+          `user`
+        ORDER BY id DESC
+        LIMIT
+        <if test="offset!=null">#{offset,jdbcType=BIGINT}</if>
+        <if test="offset==null">0</if>
+        ,
+        <if test="limit!=null">#{limit,jdbcType=INTEGER}</if>
+        <if test="limit==null">30</if>
+    </select>
+
+    <select id="fetchById" parameterType="Long" resultType="com.doopp.gauss.common.entity.User">
+        SELECT
+            *
+        FROM
+            `user`
+        WHERE
+            id = #{id,jdbcType=INTEGER}
+        LIMIT 1
+    </select>
+
+    <select id="fetchByAccount" parameterType="String" resultType="com.doopp.gauss.common.entity.User">
+        SELECT
+            *
+        FROM
+            `user`
+        WHERE
+            account = #{account}
+        LIMIT
+            1
+    </select>
+
+    <select id="count" resultType="Long">
+        SELECT
+            count(*)
+        FROM
+            `user`
+        LIMIT
+            1
+    </select>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM `user` WHERE id=${id,jdbcType=BIGINT}
+    </delete>
+
+    <insert id="create" parameterType="com.doopp.gauss.common.entity.User" useGeneratedKeys="true" keyColumn="id">
+        INSERT INTO `user`
+            (`id`, `nickname`, `gender`, `avatar_url`, `country`, `friends`, `score`, `ranking`, `gold`)
+        VALUES
+            (${id}, #{nickname}, ${gender},  #{avatar_url}, #{country}, #{friends}, ${score}, ${ranking}, ${gold})
+    </insert>
+
+    <update id="update" parameterType="com.doopp.gauss.common.entity.User">
+        UPDATE
+            `user`
+        SET
+            `nickname` = #{nickname},
+            `country` = #{country},
+            `gender` = ${gender},
+            `avatar_url` = #{avatar_url},
+            `friends` = #{friends},
+            `score` = ${score},
+            `ranking` = ${ranking},
+            `gold` = ${gold}
+        WHERE
+            `id`=#{id,jdbcType=BIGINT}
+    </update>
+
+</mapper>

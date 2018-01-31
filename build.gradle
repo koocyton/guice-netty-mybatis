@@ -1,0 +1,42 @@
+group 'com.doopp.gauss'
+version '1.0'
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenLocal()
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    // guice
+    compile 'com.google.inject:guice:4.1.0'
+    // netty
+    compile 'io.netty:netty-all:4.1.20.Final'
+}
+
+jar {
+    manifest {
+        attributes(
+                "Manifest-Version": 1.0,
+                "Main-Class": "com.doopp.gauss.server.KTApplication",
+                "Class-Path": "./"
+        )
+    }
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+task clearPj(type:Delete){
+    delete 'build','target'
+}
+task copyJar(type:Copy){
+}
+task release(type:Copy,dependsOn: [clearPj, copyJar, jar]) {
+}
