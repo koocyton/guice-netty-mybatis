@@ -58,13 +58,13 @@ public class KTApplication {
                                     "GET / HTTP/1.1\r\n" +
                                         "Host: 127.0.0.1\r\n" +
                                         "Connection: close\r\n" +
-                                        "\r\n\r\n Its work"
+                                        "\r\nIts work"
                                 );
                                 System.out.println("sending...");
                                 System.out.println(request);
 
                                 ByteBuf req = Unpooled.wrappedBuffer(request.getBytes(Charset.defaultCharset()));
-                                ctx.writeAndFlush(req);
+                                ctx.writeAndFlush(req).addListener(ChannelFutureListener.CLOSE);
                                 ctx.close();
                             }
 
