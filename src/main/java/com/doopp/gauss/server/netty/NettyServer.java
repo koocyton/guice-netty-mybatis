@@ -38,8 +38,8 @@ public class NettyServer {
 		try {
 			ServerBootstrap b = new ServerBootstrap();
 			b.group(bossGroup, workerGroup)
-			 .channel(NioServerSocketChannel.class)
-					.childHandler(channelInitialer.get())
+				.channel(NioServerSocketChannel.class)
+				.childHandler(channelInitialer.get())
 				.option(ChannelOption.SO_BACKLOG, 128)
 				.childOption(ChannelOption.SO_KEEPALIVE, true);
 
