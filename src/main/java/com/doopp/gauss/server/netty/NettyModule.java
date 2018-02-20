@@ -1,5 +1,6 @@
 package com.doopp.gauss.server.netty;
 
+import com.doopp.gauss.api.controller.AccountController;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -25,7 +26,13 @@ public class NettyModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(NettyServer.class);
+		// bind(AccountController.class);
+		// bind(NettyServer.class);
+	}
+
+	@Provides
+	public AccountController accountController() {
+		return new AccountController();
 	}
 
 	@Provides

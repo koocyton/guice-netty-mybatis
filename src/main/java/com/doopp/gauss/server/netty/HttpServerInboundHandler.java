@@ -6,6 +6,8 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
+import com.doopp.gauss.api.controller.AccountController;
+import com.google.inject.Inject;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler.Sharable;
@@ -15,12 +17,17 @@ import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.SocketAddress;
+
 @Sharable
 public class HttpServerInboundHandler extends ChannelInboundHandlerAdapter {
 
     private static Logger logger = LoggerFactory.getLogger(HttpServerInboundHandler.class);
 
     private HttpRequest request;
+
+    @Inject
+    private AccountController accountController;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg)
@@ -34,7 +41,8 @@ public class HttpServerInboundHandler extends ChannelInboundHandlerAdapter {
             ByteBuf buf = content.content();
             buf.release();
 
-            String res = "I am OK";
+            logger.info(" >>> " + accountController);
+            String res = accountController.hello();
             FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(res.getBytes("UTF-8")));
             response.headers().set(CONTENT_TYPE, "text/plain");
             response.headers().set(CONTENT_LENGTH, response.content().readableBytes());
