@@ -10,7 +10,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import com.google.inject.Inject;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.LoggerFactory;
 
 public class NettyServer {
@@ -64,7 +63,10 @@ public class NettyServer {
 				// HttpObjectAggregator：将HTTP消息的多个部分合成一条完整的HTTP消息
 				ch.pipeline().addLast("aggregator", new HttpObjectAggregator(65536));
 				// ChunkedWriteHandler：向客户端发送HTML5文件
-				ch.pipeline().addLast("http-chunked", new ChunkedWriteHandler());
+				// ch.pipeline().addLast("http-chunked", new ChunkedWriteHandler());
+				//用于处理websocket, /ws为访问websocket时的uri
+				//ch.pipeline().addLast("webSocketServerProtocolHandler", new WebSocketServerProtocolHandler("/ws"));
+				//ch.pipeline().addLast("myWebSocketHandler", new MyWebsocketHandler());
 				// 在管道中添加我们自己的接收数据实现方法
 				ch.pipeline().addLast("handler", applicationHandler);
 			}
