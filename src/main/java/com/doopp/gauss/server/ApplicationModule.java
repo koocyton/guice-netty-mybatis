@@ -1,5 +1,10 @@
-package com.doopp.gauss.server.netty;
+package com.doopp.gauss.server;
 
+import com.doopp.gauss.rpc.controller.AccountController;
+import com.doopp.gauss.rpc.service.HelloService;
+import com.doopp.gauss.rpc.service.impl.HelloServiceImpl;
+import com.doopp.gauss.server.netty.ApplicationChannelInboundHandler;
+import com.google.inject.name.Names;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 
@@ -11,16 +16,17 @@ import java.util.Properties;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
-public class NettyModule extends AbstractModule {
+public class ApplicationModule extends AbstractModule {
 
 	private String propertiesConfig;
 
-	public NettyModule(String propertiesConfig) {
+	ApplicationModule(String propertiesConfig) {
 		this.propertiesConfig = propertiesConfig;
 	}
 
 	@Override
 	protected void configure() {
+		// bind(HelloService.class).to(HelloServiceImpl.class);
 	}
 
 	@Provides

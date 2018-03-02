@@ -14,7 +14,6 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Type;
 
 public class ApplicationChannelInboundHandler extends SimpleChannelInboundHandler<Object> {
 
@@ -47,9 +46,10 @@ public class ApplicationChannelInboundHandler extends SimpleChannelInboundHandle
         HttpMethod httpMethod = httpRequest.method();
 
         // request uri
-        switch(uri) {
-            case
-        }
+        //switch(uri) {
+        //    case
+        //}
+        // String message =
 
         // FullHttpResponse httpResponse
         FullHttpResponse httpResponse = new DefaultFullHttpResponse(HTTP_1_1, OK);
