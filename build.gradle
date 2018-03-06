@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
 
-    compile 'javax.servlet:javax.servlet-api:4.0.0'
+    // compile 'javax.servlet:javax.servlet-api:4.0.0'
 
     // Guice  Netty
     compile 'com.google.inject:guice:4.2.0'

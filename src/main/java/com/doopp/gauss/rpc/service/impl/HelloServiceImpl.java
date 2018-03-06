@@ -14,7 +14,6 @@ public class HelloServiceImpl implements HelloService {
 
     @Override
     public User hello() {
-        System.out.print("\nuserDao : " + userDao);
         return userDao.fetchById(Long.valueOf("958001403853410304"));
     }
 }

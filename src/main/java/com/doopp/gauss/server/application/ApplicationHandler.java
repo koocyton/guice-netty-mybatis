@@ -30,7 +30,6 @@ public class ApplicationHandler extends ChannelInboundHandlerAdapter {
 
         if (msg instanceof FullHttpRequest) {
             AccountController accountController = injector.getBinding(AccountController.class).getProvider().get();
-            System.out.print("\naccountController : " + accountController);
             FullHttpRequest httpRequest = (FullHttpRequest) msg;
             FullHttpResponse httpResponse = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.copiedBuffer(accountController.hello(), CharsetUtil.UTF_8));
             httpResponse.headers().set(CONTENT_TYPE, "text/plain;charset=UTF-8");

@@ -11,7 +11,6 @@ public class AccountController {
     private HelloService helloService;
 
     public String hello() {
-        System.out.print("\nhelloService : " + helloService);
         return helloService.hello().toString();
     }
 }
