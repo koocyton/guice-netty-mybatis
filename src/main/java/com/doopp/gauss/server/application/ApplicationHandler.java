@@ -11,9 +11,8 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
 
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_LENGTH;
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
@@ -31,14 +30,15 @@ public class ApplicationHandler extends ChannelInboundHandlerAdapter {
 
         if (msg instanceof FullHttpRequest) {
             AccountController accountController = injector.getBinding(AccountController.class).getProvider().get();
+            System.out.print("\naccountController : " + accountController);
             FullHttpRequest httpRequest = (FullHttpRequest) msg;
             FullHttpResponse httpResponse = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.copiedBuffer(accountController.hello(), CharsetUtil.UTF_8));
             httpResponse.headers().set(CONTENT_TYPE, "text/plain;charset=UTF-8");
             httpResponse.headers().set(CONTENT_LENGTH, httpResponse.content().readableBytes());
 
-            if (HttpUtil.isKeepAlive(httpRequest)) {
-                httpResponse.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-            }
+            //if (HttpUtil.isKeepAlive(httpRequest)) {
+            //    httpResponse.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+            //}
             ctx.writeAndFlush(httpResponse);
         }
         else if (msg instanceof WebSocketFrame) {

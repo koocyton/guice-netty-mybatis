@@ -11,11 +11,8 @@ import com.google.inject.Injector;
 import com.google.inject.name.Names;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.mybatis.guice.MyBatisModule;
-import org.mybatis.guice.datasource.builtin.PooledDataSourceProvider;
 import org.mybatis.guice.datasource.druid.DruidDataSourceProvider;
 import org.mybatis.guice.datasource.helper.JdbcHelper;
-
-import java.util.Properties;
 
 public class KTApplication {
 

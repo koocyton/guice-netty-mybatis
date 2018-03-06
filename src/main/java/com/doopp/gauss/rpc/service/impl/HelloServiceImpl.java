@@ -4,7 +4,9 @@ import com.doopp.gauss.entity.User;
 import com.doopp.gauss.rpc.dao.UserDao;
 import com.doopp.gauss.rpc.service.HelloService;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
+@Singleton
 public class HelloServiceImpl implements HelloService {
 
     @Inject
@@ -12,6 +14,7 @@ public class HelloServiceImpl implements HelloService {
 
     @Override
     public User hello() {
+        System.out.print("\nuserDao : " + userDao);
         return userDao.fetchById(Long.valueOf("958001403853410304"));
     }
 }
