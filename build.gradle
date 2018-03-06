@@ -22,13 +22,15 @@ dependencies {
     compile 'io.netty:netty-all:4.1.20.Final'
 
     // database
-    //compile 'mysql:mysql-connector-java:6.0.6'
-    //compile 'com.zaxxer:HikariCP:2.7.7'
-    //compile 'org.mybatis:mybatis:3.4.5'
-    //compile 'org.mybatis:mybatis-guice:3.10'
+    compile 'mysql:mysql-connector-java:5.1.45'
+    compile 'com.alibaba:druid:1.1.4'
+    compile 'org.mybatis:mybatis:3.4.5'
+    compile 'org.mybatis:mybatis-guice:3.10'
 
     // template
     compile 'org.freemarker:freemarker:2.3.23'
+
+    compileOnly 'org.projectlombok:lombok:1.16.18'
 
     // logger
     compile 'org.slf4j:slf4j-api:1.7.25'

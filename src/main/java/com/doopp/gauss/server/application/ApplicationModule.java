@@ -1,17 +1,19 @@
 package com.doopp.gauss.server.application;
 
-import com.google.inject.AbstractModule;
+import com.doopp.gauss.rpc.service.HelloService;
+import com.doopp.gauss.rpc.service.impl.HelloServiceImpl;
+import com.google.inject.*;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
-
-import com.google.inject.Provides;
 
 public class ApplicationModule extends AbstractModule {
 
 	@Override
-	protected void configure() {
+	public void configure() {
+	    bind(HelloService.class).to(HelloServiceImpl.class);
 	}
 
+	@Singleton
 	@Provides
 	public ApplicationProperties applicationProperties() {
 		return new ApplicationProperties();

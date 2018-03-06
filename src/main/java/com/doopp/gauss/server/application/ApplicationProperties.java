@@ -7,7 +7,7 @@ import java.util.Properties;
 
 public class ApplicationProperties extends Properties {
 
-    ApplicationProperties() {
+    public ApplicationProperties() {
         String applicationPropertiesConfig = System.getProperty("applicationPropertiesConfig");
         try {
             FileReader fileReader = new FileReader(applicationPropertiesConfig);
