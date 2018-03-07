@@ -1,6 +1,6 @@
 package com.doopp.gauss.server;
 
-import com.doopp.gauss.rpc.dao.UserDao;
+import com.doopp.gauss.backend.dao.UserDao;
 import com.doopp.gauss.server.application.ApplicationModule;
 import com.doopp.gauss.server.application.ApplicationProperties;
 import com.doopp.gauss.server.database.HikariDataSourceProvider;

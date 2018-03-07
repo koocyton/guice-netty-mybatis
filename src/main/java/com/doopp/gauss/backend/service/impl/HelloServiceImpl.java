@@ -1,10 +1,10 @@
-package com.doopp.gauss.rpc.service.impl;
+package com.doopp.gauss.backend.service.impl;
 
-import com.doopp.gauss.entity.User;
-import com.doopp.gauss.rpc.dao.UserDao;
-import com.doopp.gauss.rpc.service.HelloService;
+import com.doopp.gauss.backend.service.HelloService;
+import com.doopp.gauss.common.dao.UserDao;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.doopp.gauss.common.entity.User;
 
 @Singleton
 public class HelloServiceImpl implements HelloService {

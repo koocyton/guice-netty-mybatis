@@ -1,7 +1,7 @@
 package com.doopp.gauss.server.application;
 
-import com.doopp.gauss.rpc.service.HelloService;
-import com.doopp.gauss.rpc.service.impl.HelloServiceImpl;
+import com.doopp.gauss.backend.service.HelloService;
+import com.doopp.gauss.backend.service.impl.HelloServiceImpl;
 import com.google.inject.*;
 import freemarker.template.*;
 import io.netty.channel.*;

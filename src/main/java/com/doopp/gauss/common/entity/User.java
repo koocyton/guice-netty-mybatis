@@ -1,4 +1,4 @@
-package com.doopp.gauss.entity;
+package com.doopp.gauss.common.entity;
 
 import lombok.Data;
 

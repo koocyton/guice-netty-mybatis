@@ -1,14 +1,11 @@
 package com.doopp.gauss.server.application;
 
-import com.doopp.gauss.rpc.controller.AccountController;
+import com.doopp.gauss.backend.controller.AccountController;
 import com.doopp.gauss.server.freemarker.ModelMap;
-import com.doopp.gauss.server.netty.NettyServer;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
@@ -19,7 +16,6 @@ import io.netty.util.CharsetUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
-import java.nio.Buffer;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
