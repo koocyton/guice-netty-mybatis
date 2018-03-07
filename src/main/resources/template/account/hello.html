@@ -1,1 +1,61 @@
-hello ${user.id?c}
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>API Helper</title>
+    <script>
+        let WebSocketService = function(url) {
+            let protocol = /^https/.test(window.location.protocol) ? "wss\:\/\/" : "ws\:\/\/";
+            this.ws = /^ws/.test(url) ? new WebSocket(url) : new WebSocket(protocol + window.location.host + url);
+        };
+        WebSocketService.connect = function(url) {
+            return new WebSocketService(url);
+        };
+        WebSocketService.prototype.onOpen = function(callOpen) {
+            if (typeof callOpen==="function") {
+                this.ws.onopen = callOpen;
+            }
+            return this;
+        };
+        WebSocketService.prototype.onClose = function(callClose) {
+            if (typeof callClose==="function") {
+                this.ws.onclose = callClose;
+            }
+            return this;
+        };
+        WebSocketService.prototype.onError = function(callError) {
+            if (typeof callError==="function") {
+                this.ws.onerror = callError;
+            }
+            return this;
+        };
+        WebSocketService.prototype.onMessage = function(callMessage) {
+            if (typeof callMessage==="function") {
+                this.ws.onmessage = callMessage;
+            }
+            return this;
+        };
+        WebSocketService.prototype.send = function(message) {
+            this.ws.send(message);
+        };
+        WebSocketService.prototype.close = function() {
+            try {
+                this.ws.close();
+            }catch(e) {;}
+        };
+    </script>
+</head>
+<body>
+<script>
+    WebSocketService.connect("/abc")
+        .onOpen(function(e){
+            window.console.log(e);
+        })
+        .onMessage(function(e) {
+            window.console.log(e);
+        });
+</script>
+</body>
+</html>
