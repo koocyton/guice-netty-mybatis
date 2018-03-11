@@ -1,10 +1,11 @@
 package com.doopp.gauss.server.netty;
 
-import com.doopp.gauss.server.application.ApplicationHandler;
+import com.doopp.gauss.server.handler.Http1RequestHandler;
 import com.doopp.gauss.server.application.ApplicationProperties;
-import com.doopp.gauss.server.application.WebSocketFrameHandler;
+import com.doopp.gauss.server.handler.WebSocketFrameHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
@@ -12,31 +13,21 @@ import com.google.inject.Inject;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
-import io.netty.handler.codec.http.websocketx.extensions.WebSocketServerExtensionHandler;
-import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
-import io.netty.handler.stream.ChunkedWriteHandler;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 
 public class NettyServer {
-
-	private final Logger logger = LoggerFactory.getLogger(NettyServer.class);
-
-	@Inject
-	private EventLoopGroup bossGroup;
-
-	@Inject
-	private EventLoopGroup workerGroup;
 
 	@Inject
 	private ApplicationProperties applicationProperties;
 
 	@Inject
-	private ApplicationHandler applicationHandler;
+	private Http1RequestHandler http1RequestHandler;
 
 	public void run() throws Exception {
 		String host = applicationProperties.s("server.host");
 		int port = applicationProperties.i("server.port");
+
+		EventLoopGroup bossGroup = new NioEventLoopGroup();
+		EventLoopGroup workerGroup = new NioEventLoopGroup();
 
 		try {
 			ServerBootstrap b = new ServerBootstrap();
@@ -46,10 +37,10 @@ public class NettyServer {
 				.childHandler(channelInitializer())
 				.option(ChannelOption.SO_BACKLOG, 128)
 				.childOption(ChannelOption.SO_KEEPALIVE, true);
+
+			System.out.print("\n Running ServerBootstrap on " + host +":" + port);
+
 			ChannelFuture f = b.bind(host, port).sync();
-
-			logger.info("Running ServerBootstrap on " + host +":" + port);
-
 			f.channel().closeFuture().sync();
 		}
 		finally {
@@ -79,13 +70,13 @@ public class NettyServer {
 				// pipeline.addLast(new ChunkedWriteHandler());
 
 				// http
-				pipeline.addLast(applicationHandler);
+				pipeline.addLast(http1RequestHandler);
 
 				// webSocket connect
-				pipeline.addLast(new WebSocketServerProtocolHandler("/abc"));
+				// pipeline.addLast(new WebSocketServerProtocolHandler("/abc"));
 
 				// 在管道中添加我们自己的接收数据实现方法
-				pipeline.addLast(new WebSocketFrameHandler());
+				// pipeline.addLast(new WebSocketFrameHandler());
 			}
 		};
 	}

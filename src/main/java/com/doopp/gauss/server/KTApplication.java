@@ -1,7 +1,7 @@
 package com.doopp.gauss.server;
 
 import com.doopp.gauss.common.dao.UserDao;
-import com.doopp.gauss.server.application.ApplicationModule;
+import com.doopp.gauss.server.module.ApplicationModule;
 import com.doopp.gauss.server.application.ApplicationProperties;
 import com.doopp.gauss.server.database.HikariDataSourceProvider;
 import com.doopp.gauss.server.netty.NettyServer;

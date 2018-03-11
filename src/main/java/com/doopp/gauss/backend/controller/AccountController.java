@@ -5,6 +5,7 @@ import com.doopp.gauss.backend.service.HelloService;
 import com.doopp.gauss.server.freemarker.ModelMap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 
 @Singleton
 public class AccountController {

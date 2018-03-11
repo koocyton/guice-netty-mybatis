@@ -1,18 +1,19 @@
-package com.doopp.gauss.server.application;
+package com.doopp.gauss.server.module;
 
+import com.doopp.gauss.backend.service.AccountService;
 import com.doopp.gauss.backend.service.HelloService;
+import com.doopp.gauss.backend.service.impl.AccountServiceImpl;
 import com.doopp.gauss.backend.service.impl.HelloServiceImpl;
+import com.doopp.gauss.server.application.ApplicationProperties;
 import com.google.inject.*;
 import freemarker.template.*;
-import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
 
 public class ApplicationModule extends AbstractModule {
 
 	@Override
 	public void configure() {
-		bindFreeMarkerTemplate();
-	    bind(HelloService.class).to(HelloServiceImpl.class);
+		bind(HelloService.class).to(HelloServiceImpl.class);
+		bind(AccountService.class).to(AccountServiceImpl.class);
 	}
 
 	@Singleton
@@ -21,12 +22,10 @@ public class ApplicationModule extends AbstractModule {
 		return new ApplicationProperties();
 	}
 
-	@Provides
-	public EventLoopGroup providesEventLoopGroup() {
-		return new NioEventLoopGroup();
-	}
 
-	private void bindFreeMarkerTemplate() {
+	@Singleton
+	@Provides
+	private Configuration viewConfiguration() {
 
 		Version version = new Version("2.3.23");
 		DefaultObjectWrapperBuilder defaultObjectWrapperBuilder = new DefaultObjectWrapperBuilder(version);
@@ -40,7 +39,9 @@ public class ApplicationModule extends AbstractModule {
 		// For production systems TemplateExceptionHandler.RETHROW_HANDLER is better.
 		// During web page *development* TemplateExceptionHandler.HTML_DEBUG_HANDLER is better.
 		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
+		cfg.setClassForTemplateLoading(this.getClass(), "/template");
 		// Bind instance for DI
-		bind(Configuration.class).toInstance(cfg);
+		// bind(Configuration.class).toInstance(cfg);
+		return cfg;
 	}
 }
