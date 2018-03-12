@@ -4,6 +4,7 @@ import com.doopp.gauss.backend.service.AccountService;
 import com.doopp.gauss.common.entity.User;
 import com.doopp.gauss.server.dispatcher.RequestProcessor;
 import com.google.inject.Inject;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -34,11 +35,11 @@ public class SessionFilter {
             "/logout",
 
             // static
-            "/js",
-            "/image",
-            "/css",
-            "/favicon.ico",
-            "/webjars",
+//            "/js",
+//            "/image",
+//            "/css",
+//            "/favicon.ico",
+//            "/webjars",
 
             // helper
             "/hello",
@@ -60,7 +61,7 @@ public class SessionFilter {
         try {
             if (doFilter) {
                 // 从 header 里拿到 access token
-                String sessionToken = "abc";//httpRequest.headers().get("session-token");
+                String sessionToken = httpRequest.headers().get("session-token");
 
                 // 如果 token 存在，反解 token
                 if (sessionToken != null) {
@@ -91,10 +92,9 @@ public class SessionFilter {
     }
 
     private static void writeErrorResponse(HttpResponseStatus responseStatus, FullHttpResponse httpResponse, String message) {
-        String data = "{\"errcode\":" + responseStatus + ", \"errmsg\":\"" + message + "\"}";
+        String json = "{\"err_code\":" + responseStatus + ", \"err_message\":\"" + message + "\"}";
         httpResponse.setStatus(responseStatus);
         httpResponse.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
-        // httpResponse.headers().set("ERROR_MESSAGE", message);
-        httpResponse.replace(Unpooled.copiedBuffer(data, CharsetUtil.UTF_8));
+        httpResponse.content().writeBytes(Unpooled.copiedBuffer(json, CharsetUtil.UTF_8));
     }
 }

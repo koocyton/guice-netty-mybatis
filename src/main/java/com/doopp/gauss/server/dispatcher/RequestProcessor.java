@@ -35,9 +35,8 @@ public class RequestProcessor {
 
     public void triggerAction(FullHttpRequest httpRequest, FullHttpResponse httpResponse) {
 
-        System.out.print("\n hah");
         String uri = httpRequest.uri();
-        String[] uriSplit = uri.split("");
+        String[] uriSplit = uri.split("\\\\/");
         System.out.print("\n >>> " + uriSplit.length + " - " + uri + "\n" + uriSplit[0] + uriSplit.length);
         uriSplit[0] = (uriSplit.length==1) ? "portal" : uriSplit[0];
         uriSplit[1] = (uriSplit[1]==null) ? "index" : uriSplit[1];
