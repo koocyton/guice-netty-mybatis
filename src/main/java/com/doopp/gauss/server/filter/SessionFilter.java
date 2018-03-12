@@ -60,7 +60,7 @@ public class SessionFilter {
         try {
             if (doFilter) {
                 // 从 header 里拿到 access token
-                String sessionToken = httpRequest.headers().get("session-token");
+                String sessionToken = "abc";//httpRequest.headers().get("session-token");
 
                 // 如果 token 存在，反解 token
                 if (sessionToken != null) {
@@ -71,12 +71,12 @@ public class SessionFilter {
                     }
                     // 如果不能找到用户
                     else {
-                        writeErrorResponse(404, httpResponse, "not found user");
+                        writeErrorResponse(HttpResponseStatus.NOT_FOUND, httpResponse, "not found user");
                     }
                 }
                 // 如果 token 不对
                 else {
-                    writeErrorResponse(501, httpResponse, "token failed");
+                    writeErrorResponse(HttpResponseStatus.NOT_ACCEPTABLE, httpResponse, "token failed");
                 }
             }
             // 不用校验
@@ -86,14 +86,15 @@ public class SessionFilter {
         }
         catch (Exception e) {
             e.printStackTrace();
-            writeErrorResponse(501, httpResponse, e.getMessage());
+            writeErrorResponse(HttpResponseStatus.BAD_GATEWAY, httpResponse, e.getMessage());
         }
     }
 
-    private static void writeErrorResponse(int errorCode, FullHttpResponse httpResponse, String message) {
-        String data = "{\"errcode\":" + errorCode + ", \"errmsg\":\"" + message + "\"}";
-        httpResponse.setStatus(HttpResponseStatus.BAD_GATEWAY);
+    private static void writeErrorResponse(HttpResponseStatus responseStatus, FullHttpResponse httpResponse, String message) {
+        String data = "{\"errcode\":" + responseStatus + ", \"errmsg\":\"" + message + "\"}";
+        httpResponse.setStatus(responseStatus);
         httpResponse.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
+        // httpResponse.headers().set("ERROR_MESSAGE", message);
         httpResponse.replace(Unpooled.copiedBuffer(data, CharsetUtil.UTF_8));
     }
 }

@@ -3,6 +3,7 @@ package com.doopp.gauss.server.netty;
 import com.doopp.gauss.server.handler.Http1RequestHandler;
 import com.doopp.gauss.server.application.ApplicationProperties;
 import com.doopp.gauss.server.handler.WebSocketFrameHandler;
+import com.google.inject.spi.StaticInjectionRequest;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
