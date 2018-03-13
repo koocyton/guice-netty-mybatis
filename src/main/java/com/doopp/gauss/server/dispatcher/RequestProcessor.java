@@ -4,6 +4,7 @@ import com.doopp.gauss.server.annotation.JsonResponse;
 import com.doopp.gauss.server.filter.SessionFilter;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 
@@ -51,6 +52,13 @@ public class RequestProcessor {
 
         // call controller
         String ctrlClass = "com.doopp.gauss.backend.controller." + ctrlName.substring(0, 1).toUpperCase() + ctrlName.substring(1) + "Controller";
+        try {
+            Class.forName(ctrlClass);
+        }
+        catch(ClassNotFoundException e) {
+            httpResponse.setStatus(HttpResponseStatus.NOT_FOUND);
+            return;
+        }
         Object ctrlObject = injector.getInstance(Class.forName(ctrlClass));
         ModelMap modelMap = new ModelMap();
         Method method = ctrlObject.getClass().getMethod(methodName, new Class[]{ModelMap.class});

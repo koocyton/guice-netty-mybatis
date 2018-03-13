@@ -22,9 +22,14 @@ public class Http1RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest httpRequest) throws Exception {
+        String headerUpgrade = httpRequest.headers().get("Upgrade");
+        if (headerUpgrade!=null && headerUpgrade.equals("websocket")) {
+            return;
+        }
         FullHttpResponse httpResponse = new DefaultFullHttpResponse(HTTP_1_1, OK);
         injector.getInstance(RequestProcessor.class).processor(httpRequest, httpResponse);
         httpResponse.headers().set(CONTENT_LENGTH, httpResponse.content().readableBytes());
         ctx.writeAndFlush(httpResponse);
+        // ctx.fireChannelActive();
     }
 }
