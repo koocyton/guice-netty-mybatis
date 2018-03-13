@@ -18,6 +18,7 @@ dependencies {
 
     // Guice  Netty
     compile 'com.google.inject:guice:4.2.0'
+    compile 'com.google.guava:guava:24.0-jre'
     // compile 'com.google.inject.extensions:guice-servlet:4.2.0'
     compile 'io.netty:netty-all:4.1.20.Final'
 
@@ -30,6 +31,8 @@ dependencies {
 
     // template
     compile 'org.freemarker:freemarker:2.3.23'
+    // JSON
+    compile 'com.alibaba:fastjson:1.2.31'
 
     compileOnly 'org.projectlombok:lombok:1.16.18'
 
