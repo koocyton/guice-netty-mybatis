@@ -1,7 +1,6 @@
 package com.doopp.gauss.server.dispatcher;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.annotation.JSONCreator;
+import com.doopp.gauss.server.annotation.JsonResponse;
 import com.doopp.gauss.server.filter.SessionFilter;
 
 import java.io.ByteArrayOutputStream;
@@ -9,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 
 import com.doopp.gauss.server.freemarker.ModelMap;
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
@@ -19,6 +19,8 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.util.CharsetUtil;
+
+import javax.xml.ws.ResponseWrapper;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 
@@ -55,9 +57,10 @@ public class RequestProcessor {
         Object[] arg = new Object[]{modelMap};
 
         String content;
-        if (method.isAnnotationPresent(JSONCreator.class)) {
+        if (method.isAnnotationPresent(JsonResponse.class)) {
             // JSON
-            content = JSON.toJSONString(method.invoke(ctrlObject, arg));
+            Gson gson = new Gson();
+            content = gson.toJson(method.invoke(ctrlObject, arg));
             httpResponse.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
         }
         else {

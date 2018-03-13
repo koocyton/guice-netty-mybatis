@@ -1,12 +1,12 @@
 package com.doopp.gauss.backend.controller;
 
-import com.alibaba.fastjson.annotation.JSONCreator;
-import com.alibaba.fastjson.annotation.JSONField;
 import com.doopp.gauss.common.entity.User;
 import com.doopp.gauss.backend.service.HelloService;
+import com.doopp.gauss.server.annotation.JsonResponse;
 import com.doopp.gauss.server.freemarker.ModelMap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
 
 @Singleton
 public class AccountController {
@@ -14,7 +14,7 @@ public class AccountController {
     @Inject
     private HelloService helloService;
 
-    @JSONCreator
+    @JsonResponse
     @Inject
     public ModelMap user(ModelMap modelMap) {
         User user = helloService.hello();

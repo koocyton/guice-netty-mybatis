@@ -31,8 +31,9 @@ dependencies {
 
     // template
     compile 'org.freemarker:freemarker:2.3.23'
+
     // JSON
-    compile 'com.alibaba:fastjson:1.2.31'
+    compile 'com.google.code.gson:gson:2.8.2'
 
     compileOnly 'org.projectlombok:lombok:1.16.18'
 
