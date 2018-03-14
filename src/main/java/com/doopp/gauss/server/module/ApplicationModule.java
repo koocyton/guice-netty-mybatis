@@ -7,6 +7,8 @@ import com.doopp.gauss.backend.service.impl.HelloServiceImpl;
 import com.doopp.gauss.server.application.ApplicationProperties;
 import com.google.inject.*;
 import freemarker.template.*;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
 
 public class ApplicationModule extends AbstractModule {
 
@@ -20,6 +22,11 @@ public class ApplicationModule extends AbstractModule {
 	@Provides
 	public ApplicationProperties applicationProperties() {
 		return new ApplicationProperties();
+	}
+
+	@Provides
+	public EventLoopGroup eventExecutors() {
+		return new NioEventLoopGroup();
 	}
 
 

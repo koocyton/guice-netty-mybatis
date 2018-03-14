@@ -25,13 +25,16 @@ public class NettyServer {
 	@Inject
 	private Injector injector;
 
+	@Inject
+	private EventLoopGroup bossGroup;
+
+	@Inject
+	private EventLoopGroup workerGroup;
+
 	public void run() throws Exception {
 		String host = applicationProperties.s("server.host");
 		int port = applicationProperties.i("server.port");
-
-		EventLoopGroup bossGroup = new NioEventLoopGroup();
-		EventLoopGroup workerGroup = new NioEventLoopGroup();
-
+		System.out.print("\n" + workerGroup);
 		try {
 			ServerBootstrap b = new ServerBootstrap();
 
