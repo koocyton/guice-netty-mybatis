@@ -6,9 +6,11 @@ import com.doopp.gauss.server.dispatcher.RequestProcessor;
 import com.google.inject.Inject;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
@@ -21,7 +23,7 @@ public class SessionFilter {
     @Inject
     private RequestProcessor requestProcessor;
 
-    public void doFilter(FullHttpRequest httpRequest, FullHttpResponse httpResponse) {
+    public void doFilter(ChannelHandlerContext ctx, FullHttpRequest httpRequest, FullHttpResponse httpResponse) {
 
         String uri = httpRequest.uri();
 
@@ -68,6 +70,7 @@ public class SessionFilter {
                     User user = accountService.getUserByToken(sessionToken);
                     // 如果能找到用户
                     if (user != null) {
+                        ctx.channel().attr(AttributeKey.valueOf("currentUser")).set(user);
                         requestProcessor.triggerAction(httpRequest, httpResponse);
                     }
                     // 如果不能找到用户

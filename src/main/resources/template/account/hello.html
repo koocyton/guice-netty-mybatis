@@ -50,7 +50,7 @@
 <body>
 ${user.nickname}
 <script>
-    WebSocketService.connect("/abc")
+    WebSocketService.connect("/game-socket")
         .onOpen(function(e){
             window.console.log(e);
         })

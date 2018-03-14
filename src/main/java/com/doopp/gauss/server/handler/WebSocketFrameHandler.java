@@ -12,7 +12,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
-    public static ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+    private static ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame socketFrame) throws Exception {
@@ -85,12 +85,13 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {  // (2)
-        Channel incoming = ctx.channel();
-        for (Channel channel : channels) {
-            channel.writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + incoming.remoteAddress() + " 加入"));
-        }
+        // Channel incoming = ctx.channel();
         channels.add(ctx.channel());
-        System.out.println("\nClient:"+incoming.remoteAddress() +"加入");
+        ctx.channel().writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + ctx.channel().remoteAddress() + " 加入"));
+//        for (Channel channel : channels) {
+//            channel.writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + incoming.remoteAddress() + " 加入"));
+//        }
+        System.out.println("\nClient:"+ctx.channel().remoteAddress() +"加入");
     }
 
     @Override

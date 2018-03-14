@@ -3,6 +3,7 @@ package com.doopp.gauss.server.netty;
 import com.doopp.gauss.server.handler.Http1RequestHandler;
 import com.doopp.gauss.server.application.ApplicationProperties;
 import com.doopp.gauss.server.handler.WebSocketFrameHandler;
+import com.google.inject.Injector;
 import com.google.inject.spi.StaticInjectionRequest;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -22,7 +23,7 @@ public class NettyServer {
 	private ApplicationProperties applicationProperties;
 
 	@Inject
-	private Http1RequestHandler http1RequestHandler;
+	private Injector injector;
 
 	public void run() throws Exception {
 		String host = applicationProperties.s("server.host");
@@ -72,7 +73,7 @@ public class NettyServer {
 				// pipeline.addLast(new ChunkedWriteHandler());
 
 				// http
-				pipeline.addLast(http1RequestHandler);
+				pipeline.addLast(new Http1RequestHandler(injector, "/game-socket"));
 
 				// webSocket connect
 				// pipeline.addLast(new WebSocketServerProtocolHandler("/abc"));
@@ -81,7 +82,7 @@ public class NettyServer {
 				// pipeline.addLast(new WebSocketFrameHandler());
 
 				// pipeline.addLast(new WebSocketServerCompressionHandler());
-				pipeline.addLast(new WebSocketServerProtocolHandler("/abc", null, true));
+				pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
 				// pipeline.addLast(new WebSocketIndexPageHandler(WEBSOCKET_PATH));
 				pipeline.addLast(new WebSocketFrameHandler());
 			}

@@ -16,6 +16,7 @@ import com.google.inject.Singleton;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -37,9 +38,9 @@ public class RequestProcessor {
     @Inject
     private Configuration viewConfiguration;
 
-    public void processor(FullHttpRequest httpRequest, FullHttpResponse httpResponse) {
+    public void processor(ChannelHandlerContext ctx, FullHttpRequest httpRequest, FullHttpResponse httpResponse) {
         // filter
-        sessionFilter.doFilter(httpRequest, httpResponse);
+        sessionFilter.doFilter(ctx, httpRequest, httpResponse);
     }
 
     public void triggerAction(FullHttpRequest httpRequest, FullHttpResponse httpResponse) throws Exception {
