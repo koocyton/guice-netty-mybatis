@@ -50,13 +50,14 @@
 <body>
 ${user.nickname}
 <script>
-    WebSocketService.connect("/game-socket")
+let ws = WebSocketService.connect("/game-socket")
         .onOpen(function(e){
             window.console.log(e);
         })
         .onMessage(function(e) {
             window.console.log(e);
         });
+ws.send("hello");
 </script>
 </body>
 </html>

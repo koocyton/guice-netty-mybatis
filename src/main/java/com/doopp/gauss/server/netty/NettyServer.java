@@ -15,6 +15,7 @@ import com.google.inject.Inject;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import io.netty.handler.codec.http.websocketx.extensions.WebSocketServerExtensionHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 
 public class NettyServer {
@@ -78,15 +79,8 @@ public class NettyServer {
 				// http
 				pipeline.addLast(new Http1RequestHandler(injector, "/game-socket"));
 
-				// webSocket connect
-				// pipeline.addLast(new WebSocketServerProtocolHandler("/abc"));
-
-				// 在管道中添加我们自己的接收数据实现方法
-				// pipeline.addLast(new WebSocketFrameHandler());
-
-				// pipeline.addLast(new WebSocketServerCompressionHandler());
+				// web-socket
 				pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
-				// pipeline.addLast(new WebSocketIndexPageHandler(WEBSOCKET_PATH));
 				pipeline.addLast(new WebSocketFrameHandler());
 			}
 		};
