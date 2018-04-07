@@ -33,7 +33,9 @@ public class Http1RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest httpRequest) throws Exception {
         if (httpRequest.uri().equals(wsUri)) {
-            ctx.fireChannelRead(httpRequest.setUri(wsUri).retain());
+            ctx.pipeline().addLast(new WebSocketFrameHandler());
+            ctx.flush();
+            // ctx.fireChannelRead(httpRequest.setUri(wsUri).retain());
         }
         else {
             FullHttpResponse httpResponse = new DefaultFullHttpResponse(HTTP_1_1, OK);

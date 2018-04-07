@@ -85,9 +85,9 @@ public class NettyServer {
 				// pipeline.addLast(new WebSocketFrameHandler());
 
 				// pipeline.addLast(new WebSocketServerCompressionHandler());
-				pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
+				// pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
 				// pipeline.addLast(new WebSocketIndexPageHandler(WEBSOCKET_PATH));
-				pipeline.addLast(new WebSocketFrameHandler());
+				// pipeline.addLast(new WebSocketFrameHandler());
 			}
 		};
 	}
