@@ -45,7 +45,8 @@ public class SessionFilter {
 
             // helper
             "/hello",
-            "/druid"
+            "/druid",
+            "/favicon.ico"
         };
 
         // 是否过滤

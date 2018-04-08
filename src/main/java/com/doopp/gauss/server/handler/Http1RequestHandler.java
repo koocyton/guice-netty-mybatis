@@ -3,18 +3,22 @@ package com.doopp.gauss.server.handler;
 import com.doopp.gauss.server.dispatcher.RequestProcessor;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.channel.*;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import io.netty.handler.ssl.SslHandler;
+import org.slf4j.LoggerFactory;
+
+import java.util.logging.Logger;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class Http1RequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(Http1RequestHandler.class);
 
     private Injector injector;
 
@@ -31,18 +35,40 @@ public class Http1RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
     }
 
     @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {  // (2)
+        System.out.println("\nClient:"+ctx.channel().remoteAddress() +"加入");
+    }
+
+    @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest httpRequest) throws Exception {
         if (httpRequest.uri().equals(wsUri)) {
-            ctx.pipeline().addLast(new WebSocketFrameHandler());
-            ctx.flush();
-            // ctx.fireChannelRead(httpRequest.setUri(wsUri).retain());
+            ctx.fireChannelRead(httpRequest.retain());
         }
         else {
-            FullHttpResponse httpResponse = new DefaultFullHttpResponse(HTTP_1_1, OK);
+
+            logger.info(">>" + httpRequest.uri());
+            if (HttpUtil.is100ContinueExpected(httpRequest)) {
+                FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE);
+                ctx.writeAndFlush(response);
+            }
+
+            FullHttpResponse httpResponse = new DefaultFullHttpResponse(httpRequest.protocolVersion(), HttpResponseStatus.OK);
+            httpResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
+
             injector.getInstance(RequestProcessor.class).processor(ctx, httpRequest, httpResponse);
             httpResponse.headers().set(CONTENT_LENGTH, httpResponse.content().readableBytes());
+
+            if (HttpUtil.isKeepAlive(httpRequest)) {
+                httpResponse.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+            }
+
+            //ctx.write(httpResponse);
+
+            //ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
             ChannelFuture future = ctx.writeAndFlush(httpResponse);
-            // future.addListener(ChannelFutureListener.CLOSE);
+            if (!HttpUtil.isKeepAlive(httpRequest)) {
+                future.addListener(ChannelFutureListener.CLOSE);
+            }
         }
     }
 }

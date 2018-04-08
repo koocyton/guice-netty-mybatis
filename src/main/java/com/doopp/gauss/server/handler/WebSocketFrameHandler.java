@@ -16,6 +16,9 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame socketFrame) throws Exception {
+
+        System.out.print(" \n  BBBBBBB ");
+
         if (socketFrame instanceof TextWebSocketFrame) {
             handleText(ctx, (TextWebSocketFrame) socketFrame);
         }

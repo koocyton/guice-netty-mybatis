@@ -2,6 +2,7 @@ package com.doopp.gauss.server.netty;
 
 import com.doopp.gauss.server.handler.Http1RequestHandler;
 import com.doopp.gauss.server.application.ApplicationProperties;
+import com.doopp.gauss.server.handler.HttpFileResourceHandler;
 import com.doopp.gauss.server.handler.WebSocketFrameHandler;
 import com.google.inject.Injector;
 import com.google.inject.spi.StaticInjectionRequest;
@@ -16,6 +17,9 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 
 public class NettyServer {
 
@@ -67,27 +71,24 @@ public class NettyServer {
 				// 设置30秒没有读到数据，则触发一个READER_IDLE事件。
 				// pipeline.addLast(new IdleStateHandler(30, 0, 0));
 
+				// 打印日志,可以看到websocket帧数据
+				// pipeline.addFirst(new LoggingHandler(LogLevel.INFO));
 				// HttpServerCodec：将请求和应答消息解码为HTTP消息
 				pipeline.addLast(new HttpServerCodec());
-
 				// HttpObjectAggregator：将HTTP消息的多个部分合成一条完整的HTTP消息
 				pipeline.addLast(new HttpObjectAggregator(65536));
-
 				// pipeline.addLast(new ChunkedWriteHandler());
 
-				// http
-				pipeline.addLast(new Http1RequestHandler(injector, "/game-socket"));
+                // http
+                pipeline.addLast(new HttpFileResourceHandler());
+
+                // http
+                pipeline.addLast(new Http1RequestHandler(injector, "/game-socket"));
 
 				// webSocket connect
-				// pipeline.addLast(new WebSocketServerProtocolHandler("/abc"));
-
-				// 在管道中添加我们自己的接收数据实现方法
-				// pipeline.addLast(new WebSocketFrameHandler());
-
 				// pipeline.addLast(new WebSocketServerCompressionHandler());
-				// pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
-				// pipeline.addLast(new WebSocketIndexPageHandler(WEBSOCKET_PATH));
-				// pipeline.addLast(new WebSocketFrameHandler());
+				//pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
+				//pipeline.addLast(new WebSocketFrameHandler());
 			}
 		};
 	}

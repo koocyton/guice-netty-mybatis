@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
+import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,18 +24,28 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 
-public class HttpFileResourceHandler implements HttpResourceHandler {
+public class HttpFileResourceHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+// public class HttpFileResourceHandler implements HttpResourceHandler {
 
 	private static Logger logger = LoggerFactory.getLogger(HttpFileResourceHandler.class);
 
 	private static final CharSequence SERVER_NAME = "Netty";
 
 	@Override
-	public void process(ChannelHandlerContext ctx, FullHttpRequest msg, String uri, int dotPos) throws IOException {
-		File file = new File(uri);
+	protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest httpRequest) throws Exception {
+		this.process(ctx, httpRequest, httpRequest.uri(), 1);
+	}
+
+	private void process(ChannelHandlerContext ctx, FullHttpRequest msg, String uri, int dotPos) throws IOException {
+		String f = "D:\\project\\guice-netty-mybatis\\src\\main\\resources\\public" + uri;
+		File file = new File(f);
 		HttpVersion version = new HttpVersion("HTTP/1.1", false);
 		HttpResponseStatus status;
 		ByteBuf buf;
+		if (!file.exists()) {
+			ctx.fireChannelRead(msg.retain());
+			return;
+		}
 		if (file.exists()) {
 			logger.debug("file resource: {}", file);
 			FileInputStream fin = new FileInputStream(file);
