@@ -37,7 +37,8 @@ public class HttpFileResourceHandler extends SimpleChannelInboundHandler<FullHtt
 	}
 
 	private void process(ChannelHandlerContext ctx, FullHttpRequest msg, String uri, int dotPos) throws IOException {
-		String f = "D:\\project\\guice-netty-mybatis\\src\\main\\resources\\public" + uri;
+		// System.out.print(" >>> " + getFile().getParent() + "/resources/public");
+		String f = getFile().getParent() + "/resources/public" + uri;
 		File file = new File(f);
 		HttpVersion version = new HttpVersion("HTTP/1.1", false);
 		HttpResponseStatus status;
@@ -87,8 +88,22 @@ public class HttpFileResourceHandler extends SimpleChannelInboundHandler<FullHtt
 	}
 
 	private String contentType(String fileExt) {
+		System.out.print(">>> fileExt " + fileExt);
 		String mime = fileExt2Mimes.get(fileExt);
 		return mime != null ? mime : "text/plain";
+	}
+
+	private static File getFile()
+	{
+		String path = HttpFileResourceHandler.class.getProtectionDomain().getCodeSource().getLocation().getFile();
+		System.out.print(">>>" + path);
+		try {
+			path = java.net.URLDecoder.decode(path, "UTF-8");
+		}
+		catch (java.io.UnsupportedEncodingException e) {
+			return null;
+		}
+		return new File(path);
 	}
 
 	private static final HashMap<String, String> fileExt2Mimes = new HashMap<String, String>(256);
