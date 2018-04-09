@@ -29,7 +29,6 @@ public class ApplicationModule extends AbstractModule {
 		return new NioEventLoopGroup();
 	}
 
-
 	@Singleton
 	@Provides
 	private Configuration viewConfiguration() {

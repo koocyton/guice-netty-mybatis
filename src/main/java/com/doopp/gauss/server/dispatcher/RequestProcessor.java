@@ -4,7 +4,6 @@ import com.doopp.gauss.server.annotation.JsonResponse;
 import com.doopp.gauss.server.filter.SessionFilter;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 
@@ -21,8 +20,6 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.util.CharsetUtil;
-
-import javax.xml.ws.ResponseWrapper;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 
