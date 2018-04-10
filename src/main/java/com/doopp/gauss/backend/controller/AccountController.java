@@ -6,6 +6,7 @@ import com.doopp.gauss.server.annotation.JsonResponse;
 import com.doopp.gauss.server.freemarker.ModelMap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import io.netty.handler.codec.http.FullHttpRequest;
 
 
 @Singleton
@@ -15,15 +16,13 @@ public class AccountController {
     private HelloService helloService;
 
     @JsonResponse
-    @Inject
     public ModelMap user(ModelMap modelMap) {
         User user = helloService.hello();
         modelMap.addAttribute("user", user);
         return modelMap;
     }
 
-    @Inject
-    public String hello(ModelMap modelMap) {
+    public String hello(ModelMap modelMap, FullHttpRequest httpRequest) {
         User user = helloService.hello();
         modelMap.addAttribute("user", user);
         return "hello";

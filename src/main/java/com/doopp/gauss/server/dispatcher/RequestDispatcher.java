@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 
 import com.doopp.gauss.server.freemarker.ModelMap;
 import com.google.gson.Gson;
@@ -43,16 +44,21 @@ public class RequestDispatcher {
 
     public void triggerAction(FullHttpRequest httpRequest, FullHttpResponse httpResponse) throws Exception {
 
+        // 取出 request uri 对应调用的 controller 和 method
         String dispatchIndex = httpRequest.method().name() + " " + httpRequest.uri();
         String dispatchValue = DispatchRule.rules.get(dispatchIndex);
+        if (dispatchValue==null) {
+            dispatchValue = DispatchRule.rules.get(httpRequest.uri());
+        }
         if (dispatchValue==null) {
             httpResponse.setStatus(HttpResponseStatus.NOT_FOUND);
             return;
         }
+
         String controllerName = dispatchValue.substring(0, dispatchValue.lastIndexOf("."));
         String methodName = dispatchValue.substring(dispatchValue.lastIndexOf(".")+1);
 
-        // call controller
+        // 拿到 Controller Class
         String ctrlClass = "com.doopp.gauss.backend.controller." + controllerName.substring(0, 1).toUpperCase() + controllerName.substring(1) + "Controller";
         try {
             Class.forName(ctrlClass);
@@ -62,34 +68,60 @@ public class RequestDispatcher {
             return;
         }
 
-        Class[]  classes = new Class[]{};
-        Object[] objects = new Object[]{};
+        // 用户模板的 modelMap
+        ModelMap modelMap = new ModelMap();
 
+        // 将方法的参数找出来，用于注入对应类型的 object
+        ArrayList<Class> classList = new ArrayList<>();
+        ArrayList<Object> objectList = new ArrayList<>();
+
+        // 拿到 controller 的注入方法
         Object ctrlObject = injector.getInstance(Class.forName(ctrlClass));
+
+        // 获取所有的方法
         Method[] methods = ctrlObject.getClass().getMethods();
         for(Method method : methods) {
             if (method.getName().equals(methodName)) {
                 for (Parameter parameter : method.getParameters()) {
-                    classes
+                    Class parameterClass = Class.forName(parameter.getType().getTypeName());
+                    classList.add(parameterClass);
+                    // modelMap 另处理
+                    if (parameterClass==modelMap.getClass()) {
+                        objectList.add(modelMap);
+                    }
+                    // httpRequest
+                    else if (parameterClass==FullHttpRequest.class) {
+                        objectList.add(httpRequest);
+                    }
+                    // httpResponse
+                    else if (parameterClass==FullHttpResponse.class) {
+                        objectList.add(httpResponse);
+                    }
+                    else {
+                        objectList.add(parameterClass.newInstance());
+                    }
                 }
+                break;
             }
-            System.out.print("\n" + method.getName());
         }
-        System.out.print(ctrlObject.getClass().getMethods()[0].getParameters()[0].getType().getTypeName());
-        ModelMap modelMap = new ModelMap();
-        Method method = ctrlObject.getClass().getMethod(methodName, new Class[]{ModelMap.class});
-        Object[] arg = new Object[]{modelMap};
 
+        // 转类型
+        Class[] classes = classList.toArray(new Class[classList.size()]);
+        Object[] objects = objectList.toArray();
+        Method method = ctrlObject.getClass().getMethod(methodName, classes);
+
+        // content
         String content;
+
+        // if json
         if (method.isAnnotationPresent(JsonResponse.class)) {
-            // JSON
             Gson gson = new Gson();
-            content = gson.toJson(method.invoke(ctrlObject, arg));
+            content = gson.toJson(method.invoke(ctrlObject, objects));
             httpResponse.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
         }
+        // if template
         else {
-            // 模板
-            String actionResult = (String) method.invoke(ctrlObject, arg);
+            String actionResult = (String) method.invoke(ctrlObject, objects);
             // get template
             viewConfiguration.setClassForTemplateLoading(this.getClass(), "/template/" + controllerName);
             Template template = viewConfiguration.getTemplate(actionResult + ".html");
