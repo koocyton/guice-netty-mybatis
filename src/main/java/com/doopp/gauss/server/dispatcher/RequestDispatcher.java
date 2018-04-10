@@ -6,6 +6,7 @@ import com.doopp.gauss.server.filter.SessionFilter;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 import com.doopp.gauss.server.freemarker.ModelMap;
 import com.google.gson.Gson;
@@ -24,7 +25,7 @@ import io.netty.util.CharsetUtil;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 
 @Singleton
-public class RequestProcessor {
+public class RequestDispatcher {
 
     @Inject
     private Injector injector;
@@ -42,14 +43,17 @@ public class RequestProcessor {
 
     public void triggerAction(FullHttpRequest httpRequest, FullHttpResponse httpResponse) throws Exception {
 
-        // request dispatcher
-        String uri = httpRequest.uri();
-        String[] uriSplit = uri.split("/");
-        String ctrlName = (uri.equals("/") || uriSplit.length<2) ? "account" : uriSplit[1];
-        String methodName = (uri.equals("/") || uriSplit.length<3) ? "hello" : uriSplit[2];
+        String dispatchIndex = httpRequest.method().name() + " " + httpRequest.uri();
+        String dispatchValue = DispatchRule.rules.get(dispatchIndex);
+        if (dispatchValue==null) {
+            httpResponse.setStatus(HttpResponseStatus.NOT_FOUND);
+            return;
+        }
+        String controllerName = dispatchValue.substring(0, dispatchValue.lastIndexOf("."));
+        String methodName = dispatchValue.substring(dispatchValue.lastIndexOf(".")+1);
 
         // call controller
-        String ctrlClass = "com.doopp.gauss.backend.controller." + ctrlName.substring(0, 1).toUpperCase() + ctrlName.substring(1) + "Controller";
+        String ctrlClass = "com.doopp.gauss.backend.controller." + controllerName.substring(0, 1).toUpperCase() + controllerName.substring(1) + "Controller";
         try {
             Class.forName(ctrlClass);
         }
@@ -57,7 +61,21 @@ public class RequestProcessor {
             httpResponse.setStatus(HttpResponseStatus.NOT_FOUND);
             return;
         }
+
+        Class[]  classes = new Class[]{};
+        Object[] objects = new Object[]{};
+
         Object ctrlObject = injector.getInstance(Class.forName(ctrlClass));
+        Method[] methods = ctrlObject.getClass().getMethods();
+        for(Method method : methods) {
+            if (method.getName().equals(methodName)) {
+                for (Parameter parameter : method.getParameters()) {
+                    classes
+                }
+            }
+            System.out.print("\n" + method.getName());
+        }
+        System.out.print(ctrlObject.getClass().getMethods()[0].getParameters()[0].getType().getTypeName());
         ModelMap modelMap = new ModelMap();
         Method method = ctrlObject.getClass().getMethod(methodName, new Class[]{ModelMap.class});
         Object[] arg = new Object[]{modelMap};
@@ -73,7 +91,7 @@ public class RequestProcessor {
             // 模板
             String actionResult = (String) method.invoke(ctrlObject, arg);
             // get template
-            viewConfiguration.setClassForTemplateLoading(this.getClass(), "/template/" + ctrlName);
+            viewConfiguration.setClassForTemplateLoading(this.getClass(), "/template/" + controllerName);
             Template template = viewConfiguration.getTemplate(actionResult + ".html");
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             template.process(modelMap, new OutputStreamWriter(outputStream));

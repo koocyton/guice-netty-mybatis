@@ -1,6 +1,6 @@
 package com.doopp.gauss.server.handler;
 
-import com.doopp.gauss.server.dispatcher.RequestProcessor;
+import com.doopp.gauss.server.dispatcher.RequestDispatcher;
 import com.google.inject.Injector;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
@@ -21,7 +21,7 @@ public class Http1RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest httpRequest) throws Exception {
         if (httpRequest.uri().equals(websocketPath)) {
-            ctx.fireChannelRead(httpRequest.retain());
+            // ctx.fireChannelRead(httpRequest.retain());
         }
         else {
 
@@ -33,7 +33,7 @@ public class Http1RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
             FullHttpResponse httpResponse = new DefaultFullHttpResponse(httpRequest.protocolVersion(), HttpResponseStatus.OK);
             // httpResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
 
-            injector.getInstance(RequestProcessor.class).processor(ctx, httpRequest, httpResponse);
+            injector.getInstance(RequestDispatcher.class).processor(ctx, httpRequest, httpResponse);
             httpResponse.headers().set(CONTENT_LENGTH, httpResponse.content().readableBytes());
 
             if (HttpUtil.isKeepAlive(httpRequest)) {

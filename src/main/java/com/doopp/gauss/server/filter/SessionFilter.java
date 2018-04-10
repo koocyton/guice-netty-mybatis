@@ -2,7 +2,7 @@ package com.doopp.gauss.server.filter;
 
 import com.doopp.gauss.backend.service.AccountService;
 import com.doopp.gauss.common.entity.User;
-import com.doopp.gauss.server.dispatcher.RequestProcessor;
+import com.doopp.gauss.server.dispatcher.RequestDispatcher;
 import com.google.inject.Inject;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -24,7 +24,7 @@ public class SessionFilter {
     private AccountService accountService;
 
     @Inject
-    private RequestProcessor requestProcessor;
+    private RequestDispatcher requestProcessor;
 
     public void doFilter(ChannelHandlerContext ctx, FullHttpRequest httpRequest, FullHttpResponse httpResponse) {
 
