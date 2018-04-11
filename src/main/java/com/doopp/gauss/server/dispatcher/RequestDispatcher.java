@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.net.URI;
 import java.util.ArrayList;
 
 import com.doopp.gauss.server.freemarker.ModelMap;
@@ -45,10 +46,14 @@ public class RequestDispatcher {
     public void triggerAction(FullHttpRequest httpRequest, FullHttpResponse httpResponse) throws Exception {
 
         // 取出 request uri 对应调用的 controller 和 method
-        String dispatchIndex = httpRequest.method().name() + " " + httpRequest.uri();
+        URI uri = URI.create(httpRequest.uri());
+        // uri path
+        String dispatchUri = uri.getPath();
+        // controller method index
+        String dispatchIndex = httpRequest.method().name() + " " + dispatchUri;
         String dispatchValue = DispatchRule.rules.get(dispatchIndex);
         if (dispatchValue==null) {
-            dispatchValue = DispatchRule.rules.get(httpRequest.uri());
+            dispatchValue = DispatchRule.rules.get(dispatchUri);
         }
         if (dispatchValue==null) {
             httpResponse.setStatus(HttpResponseStatus.NOT_FOUND);

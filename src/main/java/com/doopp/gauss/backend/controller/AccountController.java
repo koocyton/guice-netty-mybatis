@@ -16,7 +16,7 @@ public class AccountController {
     private HelloService helloService;
 
     @JsonResponse
-    public ModelMap user(ModelMap modelMap) {
+    public ModelMap user(ModelMap modelMap, FullHttpRequest httpRequest) {
         User user = helloService.hello();
         modelMap.addAttribute("user", user);
         return modelMap;
