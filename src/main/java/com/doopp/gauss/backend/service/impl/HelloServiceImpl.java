@@ -13,7 +13,7 @@ public class HelloServiceImpl implements HelloService {
     private UserDao userDao;
 
     @Override
-    public User hello() {
-        return userDao.fetchById(Long.valueOf("958001403853410304"));
+    public User hello(Long userId) {
+        return userDao.fetchById(userId);
     }
 }

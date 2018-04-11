@@ -1,5 +1,8 @@
 package com.doopp.gauss.server.dispatcher;
 
+import com.doopp.gauss.common.entity.User;
+import com.doopp.gauss.server.annotation.RequestBody;
+import com.doopp.gauss.server.annotation.RequestParam;
 import com.doopp.gauss.server.annotation.ResponseBody;
 import com.doopp.gauss.server.filter.SessionFilter;
 
@@ -12,11 +15,13 @@ import java.util.*;
 
 import com.doopp.gauss.server.freemarker.ModelMap;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
@@ -50,8 +55,6 @@ public class RequestDispatcher {
     }
 
     public void triggerAction(FullHttpRequest httpRequest, FullHttpResponse httpResponse) throws Exception {
-
-        logger.info(" >>> " + this.getRequestParams(httpRequest));
 
         // 取出 request uri 对应调用的 controller 和 method
         URI uri = URI.create(httpRequest.uri());
@@ -91,27 +94,58 @@ public class RequestDispatcher {
         // 拿到 controller 的注入方法
         Object ctrlObject = injector.getInstance(Class.forName(ctrlClass));
 
+        // POST GET 参数
+        Map<String, String> requestParams = this.getRequestParams(httpRequest);
         // 获取所有的方法
         Method[] methods = ctrlObject.getClass().getMethods();
         for(Method method : methods) {
             if (method.getName().equals(methodName)) {
                 for (Parameter parameter : method.getParameters()) {
                     Class parameterClass = Class.forName(parameter.getType().getTypeName());
-                    classList.add(parameterClass);
                     // modelMap 另处理
                     if (parameterClass==modelMap.getClass()) {
                         objectList.add(modelMap);
+                        classList.add(parameterClass);
                     }
                     // httpRequest
                     else if (parameterClass==FullHttpRequest.class) {
                         objectList.add(httpRequest);
+                        classList.add(parameterClass);
                     }
                     // httpResponse
                     else if (parameterClass==FullHttpResponse.class) {
                         objectList.add(httpResponse);
+                        classList.add(parameterClass);
                     }
+                    // RequestParam
+                    else if (parameter.getAnnotation(RequestParam.class)!=null) {
+                        String requestParamKey = parameter.getAnnotation(RequestParam.class).value();
+                        String requestParamVal = requestParams.get(requestParamKey);
+                        if (parameterClass==Long.class) {
+                            objectList.add(Long.valueOf(requestParamVal));
+                            classList.add(Long.class);
+                        }
+                        else if (parameterClass==Integer.class) {
+                            objectList.add(Integer.valueOf(requestParamVal));
+                            classList.add(Integer.class);
+                        }
+                        else {
+                            objectList.add(String.valueOf(requestParamVal));
+                            classList.add(String.class);
+                        }
+                    }
+                    // RequestBody
+                    else if (parameter.getAnnotation(RequestBody.class)!=null) {
+                        ByteBuf bf = httpRequest.content();
+                        byte[] byteArray = new byte[bf.capacity()];
+                        bf.readBytes(byteArray);
+                        objectList.add((new Gson()).fromJson(new String(byteArray), parameterClass));
+                        classList.add(parameterClass);
+                    }
+                    // null object
                     else {
-                        objectList.add(parameterClass.newInstance());
+                        objectList.add(null);
+                        classList.add(Object.class);
                     }
                 }
                 break;
@@ -154,7 +188,7 @@ public class RequestDispatcher {
 
         Map<String, String>requestParams=new HashMap<>();
         // 处理get请求
-        if (req.method() == HttpMethod.GET) {
+        if (req.method() == HttpMethod.GET || req.method() == HttpMethod.POST) {
             QueryStringDecoder decoder = new QueryStringDecoder(req.uri());
             Map<String, List<String>> params = decoder.parameters();
             for (Map.Entry<String, List<String>> next : params.entrySet()) {
