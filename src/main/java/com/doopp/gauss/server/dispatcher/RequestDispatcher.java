@@ -1,6 +1,6 @@
 package com.doopp.gauss.server.dispatcher;
 
-import com.doopp.gauss.server.annotation.JsonResponse;
+import com.doopp.gauss.server.annotation.ResponseBody;
 import com.doopp.gauss.server.filter.SessionFilter;
 
 import java.io.ByteArrayOutputStream;
@@ -127,7 +127,7 @@ public class RequestDispatcher {
         String content;
 
         // if json
-        if (method.isAnnotationPresent(JsonResponse.class)) {
+        if (method.isAnnotationPresent(ResponseBody.class)) {
             Gson gson = new Gson();
             content = gson.toJson(method.invoke(ctrlObject, objects));
             httpResponse.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
