@@ -8,7 +8,7 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.*;
 
 import com.doopp.gauss.server.freemarker.ModelMap;
 import com.google.gson.Gson;
@@ -19,15 +19,21 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
+import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import io.netty.handler.codec.http.multipart.InterfaceHttpData;
+import io.netty.handler.codec.http.multipart.MemoryAttribute;
 import io.netty.util.CharsetUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 
 @Singleton
 public class RequestDispatcher {
+
+    private static Logger logger = LoggerFactory.getLogger(RequestDispatcher.class);
 
     @Inject
     private Injector injector;
@@ -44,6 +50,8 @@ public class RequestDispatcher {
     }
 
     public void triggerAction(FullHttpRequest httpRequest, FullHttpResponse httpResponse) throws Exception {
+
+        logger.info(" >>> " + this.getRequestParams(httpRequest));
 
         // 取出 request uri 对应调用的 controller 和 method
         URI uri = URI.create(httpRequest.uri());
@@ -139,6 +147,32 @@ public class RequestDispatcher {
         // write response
         httpResponse.content().writeBytes(Unpooled.copiedBuffer(content, CharsetUtil.UTF_8));
         httpResponse.setStatus(HttpResponseStatus.OK);
+    }
+
+    // 处理 Get Post 请求
+    private Map<String, String> getRequestParams(HttpRequest req){
+
+        Map<String, String>requestParams=new HashMap<>();
+        // 处理get请求
+        if (req.method() == HttpMethod.GET) {
+            QueryStringDecoder decoder = new QueryStringDecoder(req.uri());
+            Map<String, List<String>> params = decoder.parameters();
+            for (Map.Entry<String, List<String>> next : params.entrySet()) {
+                requestParams.put(next.getKey(), next.getValue().get(0));
+            }
+        }
+        // 处理POST请求
+        if (req.method() == HttpMethod.POST) {
+            HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(new DefaultHttpDataFactory(false), req);
+            List<InterfaceHttpData> postData = decoder.getBodyHttpDatas();
+            for(InterfaceHttpData data : postData){
+                if (data.getHttpDataType() == InterfaceHttpData.HttpDataType.Attribute) {
+                    MemoryAttribute attribute = (MemoryAttribute) data;
+                    requestParams.put(attribute.getName(), attribute.getValue());
+                }
+            }
+        }
+        return requestParams;
     }
 }
 

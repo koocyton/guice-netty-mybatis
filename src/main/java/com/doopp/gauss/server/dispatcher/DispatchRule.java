@@ -9,7 +9,7 @@ public class DispatchRule {
     static {
         rules.put("", "account.hello");
         rules.put("/", "account.hello");
-        rules.put("POST /account/hello", "account.hello");
+        rules.put("POST /api/account/hello", "account.hello");
         rules.put("GET /api/account/hello", "account.hello");
         rules.put("GET /api/user", "account.user");
     }
