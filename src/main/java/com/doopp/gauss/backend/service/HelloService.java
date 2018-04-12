@@ -4,5 +4,5 @@ import com.doopp.gauss.common.entity.User;
 
 public interface HelloService {
 
-    User hello();
+    User hello(Long userId);
 }
