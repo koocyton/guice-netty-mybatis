@@ -56,8 +56,6 @@ public class NettyServer {
 		}
     }
 
-    // http://blog.csdn.net/kkkloveyou/article/details/44656325
-	// http://blog.csdn.net/joeyon1985/article/details/53586004
 	private ChannelInitializer channelInitializer() {
 		return new ChannelInitializer<SocketChannel>() {
 			@Override
@@ -80,8 +78,8 @@ public class NettyServer {
 				pipeline.addLast(new Http1RequestHandler(injector, "/game-socket"));
 
 				// web-socket
-				pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
-				pipeline.addLast(new WebSocketFrameHandler());
+				//pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
+				//pipeline.addLast(new WebSocketFrameHandler());
 			}
 		};
 	}

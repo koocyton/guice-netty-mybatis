@@ -5,7 +5,10 @@ import com.doopp.gauss.backend.service.HelloService;
 import com.doopp.gauss.backend.service.impl.AccountServiceImpl;
 import com.doopp.gauss.backend.service.impl.HelloServiceImpl;
 import com.doopp.gauss.server.application.ApplicationProperties;
+import com.doopp.gauss.server.ui.ModelMap;
 import com.google.inject.*;
+import com.google.inject.name.Names;
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import freemarker.template.*;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -14,6 +17,7 @@ public class ApplicationModule extends AbstractModule {
 
 	@Override
 	public void configure() {
+		bind(ModelMap.class).annotatedWith(Names.named("modelMap")).to(ModelMap.class);
 		bind(HelloService.class).to(HelloServiceImpl.class);
 		bind(AccountService.class).to(AccountServiceImpl.class);
 	}
@@ -28,7 +32,6 @@ public class ApplicationModule extends AbstractModule {
 	public EventLoopGroup eventExecutors() {
 		return new NioEventLoopGroup();
 	}
-
 
 	@Singleton
 	@Provides

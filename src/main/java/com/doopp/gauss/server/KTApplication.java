@@ -26,7 +26,6 @@ public class KTApplication {
         protected void initialize() {
             install(JdbcHelper.MySQL);
             bindDataSourceProviderType(HikariDataSourceProvider.class);
-            // bindDataSourceProviderType(DruidDataSourceProvider.class);
             bindTransactionFactoryType(JdbcTransactionFactory.class);
             addMapperClass(UserDao.class);
             Names.bindProperties(binder(), new ApplicationProperties());

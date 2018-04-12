@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 
-import com.doopp.gauss.server.freemarker.ModelMap;
+import com.doopp.gauss.server.ui.ModelMap;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
