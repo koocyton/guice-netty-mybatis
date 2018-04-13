@@ -7,11 +7,15 @@ public class DispatchRule {
     public static final HashMap<String, String> rules = new HashMap<>(256);
 
     static {
-        rules.put("", "account.hello");
-        rules.put("/", "account.hello");
-        rules.put("POST /api/account/hello", "account.hello");
-        rules.put("GET /api/account/hello", "account.hello");
-        rules.put("GET /api/user", "account.user");
+        // API 文档
+        rules.put("/api", "helper.api");
+
+        // 注册
+        // clientId / clientToken / account / password
         rules.put("POST /api/register", "account.register");
+
+        // 登陆
+        // clientId / clientToken / account / password
+        rules.put("POST /api/login", "account.login");
     }
 }
