@@ -41,14 +41,14 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     }
 
     private void handleText(ChannelHandlerContext ctx, TextWebSocketFrame socketFrame) {
-        System.out.print("\n" + socketFrame);
+        System.out.print("\n >>> " + socketFrame);
 //        ByteBuf buf = socketFrame.content();
 //        System.out.println(buf.array().length); //16M的array字节数组大小！？
 //
 //        // Send the uppercase string back.
 //        String text = socketFrame.text();
 //        logger.info("{} received {}", ctx.channel(), text);
-//        ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
+        ctx.channel().writeAndFlush(new TextWebSocketFrame("hello"));
 //
 //        //Request wsRequest = JSONUtil.fromJSON(request, JsonRequest.class);
 //        Request request = JSON.parseObject(text, JsonRequest.class);
