@@ -4,9 +4,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * user entity
- */
 
 @Data
 public class User implements Serializable{
@@ -14,27 +11,18 @@ public class User implements Serializable{
     // 编号
     private Long id;
 
-    // 昵称
-    private String nickname;
+    // 账号
+    private String account;
 
-    // 国家
-    private String country;
+    // 密码
+    private String password;
 
-    // 性别
-    private int gender;
+    // secret
+    private int secret;
 
-    // 头像
-    private String avatar_url;
+    // token
+    private String token;
 
-    // 好友
-    private String friends;
-
-    // 得分
-    private int score;
-
-    // 排名
-    private int ranking;
-
-    // 金币
-    private int gold;
+    // 时间
+    private String created_at;
 }
