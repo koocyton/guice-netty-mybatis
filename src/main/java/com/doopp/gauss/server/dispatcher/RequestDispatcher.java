@@ -1,6 +1,6 @@
 package com.doopp.gauss.server.dispatcher;
 
-import com.doopp.gauss.common.entity.User;
+import com.doopp.gauss.common.exception.GaussException;
 import com.doopp.gauss.server.annotation.RequestBody;
 import com.doopp.gauss.server.annotation.RequestParam;
 import com.doopp.gauss.server.annotation.ResponseBody;
@@ -8,6 +8,7 @@ import com.doopp.gauss.server.filter.SessionFilter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URI;
@@ -15,7 +16,6 @@ import java.util.*;
 
 import com.doopp.gauss.server.freemarker.ModelMap;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
@@ -38,7 +38,7 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 @Singleton
 public class RequestDispatcher {
 
-    private static Logger logger = LoggerFactory.getLogger(RequestDispatcher.class);
+    private final static Logger logger = LoggerFactory.getLogger(RequestDispatcher.class);
 
     @Inject
     private Injector injector;
@@ -75,7 +75,7 @@ public class RequestDispatcher {
         String methodName = dispatchValue.substring(dispatchValue.lastIndexOf(".")+1);
 
         // 拿到 Controller Class
-        String ctrlClass = "com.doopp.gauss.backend.controller." + controllerName.substring(0, 1).toUpperCase() + controllerName.substring(1) + "Controller";
+        String ctrlClass = "com.doopp.gauss.api.controller." + controllerName.substring(0, 1).toUpperCase() + controllerName.substring(1) + "Controller";
         try {
             Class.forName(ctrlClass);
         }
@@ -163,7 +163,20 @@ public class RequestDispatcher {
         // if json
         if (method.isAnnotationPresent(ResponseBody.class)) {
             Gson gson = new Gson();
-            content = gson.toJson(method.invoke(ctrlObject, objects));
+            try {
+                content = gson.toJson(method.invoke(ctrlObject, objects));
+                httpResponse.setStatus(HttpResponseStatus.OK);
+            }
+            catch(InvocationTargetException e) {
+                if (e.getCause().getClass()==GaussException.class) {
+                    GaussException ge = (GaussException) e.getCause();
+                    content = gson.toJson(ge);
+                }
+                else {
+                    content = gson.toJson(new GaussException((short)500, "System Error"));
+                }
+                httpResponse.setStatus(HttpResponseStatus.BAD_GATEWAY);
+            }
             httpResponse.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
         }
         // if template
@@ -180,7 +193,6 @@ public class RequestDispatcher {
 
         // write response
         httpResponse.content().writeBytes(Unpooled.copiedBuffer(content, CharsetUtil.UTF_8));
-        httpResponse.setStatus(HttpResponseStatus.OK);
     }
 
     // 处理 Get Post 请求

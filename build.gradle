@@ -29,6 +29,9 @@ dependencies {
     compile 'org.mybatis:mybatis:3.4.5'
     compile 'org.mybatis:mybatis-guice:3.10'
 
+    // Redis
+    compile 'redis.clients:jedis:2.9.0'
+
     // template
     compile 'org.freemarker:freemarker:2.3.23'
 

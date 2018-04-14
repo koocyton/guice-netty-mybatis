@@ -1,9 +1,8 @@
 package com.doopp.gauss.server.module;
 
-import com.doopp.gauss.backend.service.AccountService;
-import com.doopp.gauss.backend.service.HelloService;
-import com.doopp.gauss.backend.service.impl.AccountServiceImpl;
-import com.doopp.gauss.backend.service.impl.HelloServiceImpl;
+import com.doopp.gauss.api.service.AccountService;
+import com.doopp.gauss.api.service.impl.AccountServiceImpl;
+import com.doopp.gauss.common.util.IdWorker;
 import com.doopp.gauss.server.application.ApplicationProperties;
 import com.google.inject.*;
 import freemarker.template.*;
@@ -14,8 +13,13 @@ public class ApplicationModule extends AbstractModule {
 
 	@Override
 	public void configure() {
-		bind(HelloService.class).to(HelloServiceImpl.class);
 		bind(AccountService.class).to(AccountServiceImpl.class);
+	}
+
+	@Singleton
+	@Provides
+	public IdWorker userIdWorker() {
+		return new IdWorker(1, 1);
 	}
 
 	@Singleton
@@ -25,7 +29,7 @@ public class ApplicationModule extends AbstractModule {
 	}
 
 	@Provides
-	public EventLoopGroup eventExecutors() {
+	public EventLoopGroup eventLoopGroup() {
 		return new NioEventLoopGroup();
 	}
 

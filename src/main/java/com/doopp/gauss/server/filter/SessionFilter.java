@@ -1,6 +1,6 @@
 package com.doopp.gauss.server.filter;
 
-import com.doopp.gauss.backend.service.AccountService;
+import com.doopp.gauss.api.service.AccountService;
 import com.doopp.gauss.common.entity.User;
 import com.doopp.gauss.server.dispatcher.RequestDispatcher;
 import com.google.inject.Inject;
@@ -56,7 +56,7 @@ public class SessionFilter {
 
                 // 如果 token 存在，反解 token
                 if (sessionToken != null) {
-                    User user = accountService.getUserByToken(sessionToken);
+                    User user = accountService.userByToken(sessionToken);
                     // 如果能找到用户
                     if (user != null) {
                         ctx.channel().attr(AttributeKey.valueOf("currentUser")).set(user);

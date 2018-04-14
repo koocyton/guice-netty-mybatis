@@ -1,5 +1,6 @@
 package com.doopp.gauss.common.entity;
 
+import com.doopp.gauss.common.util.EncryptHelper;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -17,12 +18,14 @@ public class User implements Serializable{
     // 密码
     private String password;
 
-    // secret
-    private int secret;
-
-    // token
-    private String token;
+    // password salt
+    private String password_salt;
 
     // 时间
     private String created_at;
+
+    // 加密密码
+    public String encryptPassword(String password) {
+        return EncryptHelper.md5(this.account + " " + password + " " + this.password_salt);
+    }
 }

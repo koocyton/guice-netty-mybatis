@@ -17,5 +17,8 @@ public class DispatchRule {
         // 登陆
         // clientId / clientToken / account / password
         rules.put("POST /api/login", "account.login");
+
+        // 获取用户信息
+        rules.put("GET /api/user", "account.user");
     }
 }
