@@ -14,7 +14,7 @@ import java.lang.reflect.Parameter;
 import java.net.URI;
 import java.util.*;
 
-import com.doopp.gauss.server.freemarker.ModelMap;
+import com.doopp.gauss.server.ui.ModelMap;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Injector;

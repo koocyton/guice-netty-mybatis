@@ -21,7 +21,7 @@ public class Http1RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest httpRequest) throws Exception {
         if (httpRequest.uri().equals(websocketPath)) {
-            // ctx.fireChannelRead(httpRequest.retain());
+            ctx.fireChannelRead(httpRequest.retain());
         }
         else {
 

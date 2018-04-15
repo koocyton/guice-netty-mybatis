@@ -85,18 +85,18 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 //        Request request  = new ProtobufRequest(proto);
 //        handle(ctx, request);
     }
-//
-//    @Override
-//    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {  // (2)
-//        // Channel incoming = ctx.channel();
-//        channels.add(ctx.channel());
-//        ctx.channel().writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + ctx.channel().remoteAddress() + " 加入"));
-////        for (Channel channel : channels) {
-////            channel.writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + incoming.remoteAddress() + " 加入"));
-////        }
-//        System.out.println("\nClient:"+ctx.channel().remoteAddress() +"加入");
-//    }
-//
+
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {  // (2)
+        Channel incoming = ctx.channel();
+        channels.add(ctx.channel());
+        ctx.channel().writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + ctx.channel().remoteAddress() + " 加入"));
+        for (Channel channel : channels) {
+            System.out.println("\n[SERVER] - " + incoming.remoteAddress() + " 加入");
+            channel.writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + incoming.remoteAddress() + " 加入"));
+        }
+    }
+
 //    @Override
 //    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {  // (3)
 //        Channel incoming = ctx.channel();

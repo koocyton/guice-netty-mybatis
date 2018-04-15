@@ -82,9 +82,9 @@ public class NettyServer {
                 pipeline.addLast(new Http1RequestHandler(injector, "/game-socket"));
 
 				// webSocket connect
-				// pipeline.addLast(new WebSocketServerCompressionHandler());
-				// pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
-				// pipeline.addLast(new WebSocketFrameHandler());
+				pipeline.addLast(new WebSocketServerCompressionHandler());
+				pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
+				pipeline.addLast(new WebSocketFrameHandler());
 			}
 		};
 	}
