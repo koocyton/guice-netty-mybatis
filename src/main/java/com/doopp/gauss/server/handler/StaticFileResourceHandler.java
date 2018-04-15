@@ -1,78 +1,46 @@
-/**
- * 
- */
 package com.doopp.gauss.server.handler;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.HashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.*;
 
-public class HttpFileResourceHandler implements HttpResourceHandler {
-
-	private static Logger logger = LoggerFactory.getLogger(HttpFileResourceHandler.class);
-
-	private static final CharSequence SERVER_NAME = "Netty";
+public class StaticFileResourceHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
 	@Override
-	public void process(ChannelHandlerContext ctx, FullHttpRequest msg, String uri, int dotPos) throws IOException {
-		File file = new File(uri);
-		HttpVersion version = new HttpVersion("HTTP/1.1", false);
-		HttpResponseStatus status;
-		ByteBuf buf;
-		if (file.exists()) {
-			logger.debug("file resource: {}", file);
-			FileInputStream fin = new FileInputStream(file);
-			ByteArrayOutputStream bout = new ByteArrayOutputStream((int) file.length());
-			byte[] bs = new byte[1024];
-			int len;
-			while ((len = fin.read(bs)) != -1) {
-				bout.write(bs, 0, len);
-			}
-			fin.close();
-			buf = Unpooled.wrappedBuffer(bout.toByteArray()).retain();
-			status = new HttpResponseStatus(200, "Ok");
-		} else {
-			java.io.InputStream ins = getClass().getResourceAsStream(uri);
-			if (ins != null) {
-				logger.debug("classpath resource:{}", uri);
-				ByteArrayOutputStream bout = new ByteArrayOutputStream();
-				byte[] bs = new byte[1024];
-				int len;
-				while ((len = ins.read(bs)) != -1) {
-					bout.write(bs, 0, len);
-				}
-				ins.close();
-				buf = Unpooled.wrappedBuffer(bout.toByteArray()).retain();
-				status = new HttpResponseStatus(200, "Ok");
-			} else {
-				logger.warn("404:{}", file);
-				buf = Unpooled.EMPTY_BUFFER;
-				status = new HttpResponseStatus(404, "file not found!");
-			}
+	protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest httpRequest) throws Exception {
+
+		String uri = httpRequest.uri();
+		java.io.InputStream ins = getClass().getResourceAsStream("/public" + uri);
+
+		if (ins==null) {
+			ctx.fireChannelRead(httpRequest.retain());
+			return;
 		}
-		DefaultFullHttpResponse httpResp = new DefaultFullHttpResponse(version, status, buf);
-		HttpHeaders headers = httpResp.headers();
-		headers.set(HttpHeaderNames.CONTENT_TYPE, contentType(uri.substring(dotPos + 1)));
-		headers.set(HttpHeaderNames.SERVER, SERVER_NAME);
-		// headers.set(HttpHeaderNames.DATE, date);
+
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		byte[] bs = new byte[1024];
+		int len;
+		while ((len = ins.read(bs)) != -1) {
+			bout.write(bs, 0, len);
+		}
+		ins.close();
+
+		ByteBuf buf = Unpooled.wrappedBuffer(bout.toByteArray()).retain();
+		HttpResponseStatus status = new HttpResponseStatus(200, "Ok");
+		HttpVersion version = new HttpVersion("HTTP/1.1", false);
+
+		DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(version, status, buf);
+		HttpHeaders headers = httpResponse.headers();
+		headers.set(HttpHeaderNames.CONTENT_TYPE, contentType(uri.substring(uri.lastIndexOf(".") + 1)));
+		// headers.set(HttpHeaderNames.SERVER, "Netty 1.1");
 		headers.set(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(buf.readableBytes()));
-		ctx.writeAndFlush(httpResp).addListener(ChannelFutureListener.CLOSE);
+		ctx.write(httpResponse);
+		ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(ChannelFutureListener.CLOSE);
 	}
 
 	private String contentType(String fileExt) {
@@ -272,4 +240,56 @@ public class HttpFileResourceHandler implements HttpResourceHandler {
 		fileExt2Mimes.put("z", "application/x-compress");
 		fileExt2Mimes.put("zip", "application/zip");
 	}
+
+
+//	private void process(ChannelHandlerContext ctx, FullHttpRequest msg, String uri, int dotPos) throws IOException {
+//		// System.out.print(" >>> " + getFile().getParent() + "/resources/public");
+//		String f = getFile().getParent() + "/resources/public" + uri;
+//		File file = new File(f);
+//		HttpVersion version = new HttpVersion("HTTP/1.1", false);
+//		HttpResponseStatus status;
+//		ByteBuf buf;
+//		if (!file.exists()) {
+//			ctx.fireChannelRead(msg.retain());
+//			return;
+//		}
+//		if (file.exists()) {
+//			logger.debug("file resource: {}", file);
+//			FileInputStream fin = new FileInputStream(file);
+//			ByteArrayOutputStream bout = new ByteArrayOutputStream((int) file.length());
+//			byte[] bs = new byte[1024];
+//			int len;
+//			while ((len = fin.read(bs)) != -1) {
+//				bout.write(bs, 0, len);
+//			}
+//			fin.close();
+//			buf = Unpooled.wrappedBuffer(bout.toByteArray()).retain();
+//			status = new HttpResponseStatus(200, "Ok");
+//		} else {
+//			java.io.InputStream ins = getClass().getResourceAsStream(uri);
+//			if (ins != null) {
+//				logger.debug("classpath resource:{}", uri);
+//				ByteArrayOutputStream bout = new ByteArrayOutputStream();
+//				byte[] bs = new byte[1024];
+//				int len;
+//				while ((len = ins.read(bs)) != -1) {
+//					bout.write(bs, 0, len);
+//				}
+//				ins.close();
+//				buf = Unpooled.wrappedBuffer(bout.toByteArray()).retain();
+//				status = new HttpResponseStatus(200, "Ok");
+//			} else {
+//				logger.warn("404:{}", file);
+//				buf = Unpooled.EMPTY_BUFFER;
+//				status = new HttpResponseStatus(404, "file not found!");
+//			}
+//		}
+//		DefaultFullHttpResponse httpResp = new DefaultFullHttpResponse(version, status, buf);
+//		HttpHeaders headers = httpResp.headers();
+//		headers.set(HttpHeaderNames.CONTENT_TYPE, contentType(uri.substring(dotPos + 1)));
+//		headers.set(HttpHeaderNames.SERVER, SERVER_NAME);
+//		// headers.set(HttpHeaderNames.DATE, date);
+//		headers.set(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(buf.readableBytes()));
+//		ctx.writeAndFlush(httpResp).addListener(ChannelFutureListener.CLOSE);
+//	}
 }

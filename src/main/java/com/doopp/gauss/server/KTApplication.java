@@ -4,6 +4,7 @@ import com.doopp.gauss.common.dao.UserDao;
 import com.doopp.gauss.server.module.ApplicationModule;
 import com.doopp.gauss.server.application.ApplicationProperties;
 import com.doopp.gauss.server.database.HikariDataSourceProvider;
+import com.doopp.gauss.server.module.RedisModule;
 import com.doopp.gauss.server.netty.NettyServer;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -16,7 +17,11 @@ public class KTApplication {
 
     public static void main(String[] args) throws Exception {
         System.setProperty("applicationPropertiesConfig", args[0]);
-        Injector injector = Guice.createInjector(new myBatisModule(), new ApplicationModule());
+        Injector injector = Guice.createInjector(
+                new myBatisModule(),
+                new RedisModule(),
+                new ApplicationModule()
+        );
         final NettyServer server = injector.getInstance(NettyServer.class);
         server.run();
     }

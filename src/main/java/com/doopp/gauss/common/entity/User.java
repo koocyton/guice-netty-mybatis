@@ -1,12 +1,10 @@
 package com.doopp.gauss.common.entity;
 
+import com.doopp.gauss.common.util.EncryptHelper;
 import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * user entity
- */
 
 @Data
 public class User implements Serializable{
@@ -14,27 +12,20 @@ public class User implements Serializable{
     // 编号
     private Long id;
 
-    // 昵称
-    private String nickname;
+    // 账号
+    private String account;
 
-    // 国家
-    private String country;
+    // 密码
+    private String password;
 
-    // 性别
-    private int gender;
+    // password salt
+    private String password_salt;
 
-    // 头像
-    private String avatar_url;
+    // 时间
+    private String created_at;
 
-    // 好友
-    private String friends;
-
-    // 得分
-    private int score;
-
-    // 排名
-    private int ranking;
-
-    // 金币
-    private int gold;
+    // 加密密码
+    public String encryptPassword(String password) {
+        return EncryptHelper.md5(this.account + " " + password + " " + this.password_salt);
+    }
 }

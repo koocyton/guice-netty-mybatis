@@ -1,1 +1,12 @@
-hello world !
+<pre>
+
+    curl -i -d "account=wuyi&password=wuyi" "http://127.0.0.1:8081/api/register"
+    $ "2217ac38-0986-4ca2-84f8-4ca24ea36876"
+
+    curl -i -d "account=wuyi&password=wuyi" "http://127.0.0.1:8081/api/login"
+    $ "2217ac38-0986-4ca2-84f8-4ca24ea36876"
+
+    curl -i "http://127.0.0.1:8081/api/user?token=fedbfa88-6fb9-44c7-8c83-a26f549ae92a"
+    {"id":985160361353285632,"account":"wuyi","password":"4d52f5e4ec3d46621a42a4948bc83bca","password_salt":"8b106a6112693db6f15ee80de10b11b0"}
+
+</pre>
