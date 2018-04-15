@@ -17,16 +17,11 @@ public class StaticFileResourceHandler extends SimpleChannelInboundHandler<FullH
 	protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest httpRequest) throws Exception {
 
 		String uri = httpRequest.uri();
-		if (uri.substring(uri.length()-1).equals("/")) {
+		if (uri.equals("/")) {
 			uri = uri + "index.html";
 		}
 
 		java.io.InputStream ins = getClass().getResourceAsStream("/public" + uri);
-
-		if (ins==null) {
-			ctx.fireChannelRead(httpRequest.retain());
-			return;
-		}
 
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		byte[] bs = new byte[1024];

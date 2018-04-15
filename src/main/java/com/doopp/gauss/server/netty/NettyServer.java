@@ -1,5 +1,6 @@
 package com.doopp.gauss.server.netty;
 
+import com.doopp.gauss.server.handler.ApplicationHandler;
 import com.doopp.gauss.server.handler.Http1RequestHandler;
 import com.doopp.gauss.server.application.ApplicationProperties;
 import com.doopp.gauss.server.handler.StaticFileResourceHandler;
@@ -75,16 +76,19 @@ public class NettyServer {
 				pipeline.addLast(new HttpObjectAggregator(65536));
 				// pipeline.addLast(new ChunkedWriteHandler());
 
+				// my application
+				pipeline.addLast(new ApplicationHandler(injector, "/game-socket"));
+
                 // static file
-                pipeline.addLast(new StaticFileResourceHandler());
+                // pipeline.addLast(new StaticFileResourceHandler());
 
                 // http
-                pipeline.addLast(new Http1RequestHandler(injector, "/game-socket"));
+                // pipeline.addLast(new Http1RequestHandler(injector, "/game-socket"));
 
 				// webSocket connect
-				pipeline.addLast(new WebSocketServerCompressionHandler());
-				pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
-				pipeline.addLast(new WebSocketFrameHandler());
+				//pipeline.addLast(new WebSocketServerCompressionHandler());
+				//pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
+				//pipeline.addLast(new WebSocketFrameHandler());
 			}
 		};
 	}
