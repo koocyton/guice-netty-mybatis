@@ -22,7 +22,11 @@
 
     $.extend({
         infect : function (wsUrl) {
-            $.websocket(wsUrl);
+            this.ws = $.websocket(wsUrl);
+            this.send = function(message){
+                $.logger.info(this.ws);
+                this.ws.send(message);
+            };
         }
     });
 
@@ -49,8 +53,9 @@
     // };
 
     $(document).ready(function () {
-        $.infect("/game-socket");
+        let a = $.infect("/game-socket");
         $(window).bind("resize", function () {
+            a.send("/game-socket");
             // infect.resize($(window).width(), $(window).height());
         }).trigger("resize");
     });

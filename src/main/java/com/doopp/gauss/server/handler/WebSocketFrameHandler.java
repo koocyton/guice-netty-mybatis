@@ -1,5 +1,6 @@
 package com.doopp.gauss.server.handler;
 
+import com.google.inject.Injector;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -13,6 +14,12 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
     private static ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+
+    private Injector injector;
+
+    public WebSocketFrameHandler(Injector injector) {
+        this.injector = injector;
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame socketFrame) throws Exception {
@@ -48,7 +55,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 //        // Send the uppercase string back.
 //        String text = socketFrame.text();
 //        logger.info("{} received {}", ctx.channel(), text);
-        ctx.channel().writeAndFlush(new TextWebSocketFrame("hello"));
+//        ctx.channel().writeAndFlush(new TextWebSocketFrame("hello"));
 //
 //        //Request wsRequest = JSONUtil.fromJSON(request, JsonRequest.class);
 //        Request request = JSON.parseObject(text, JsonRequest.class);
@@ -86,47 +93,48 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 //        handle(ctx, request);
     }
 
-    @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {  // (2)
-        System.out.println(this);
-        Channel incoming = ctx.channel();
-        channels.add(ctx.channel());
-        ctx.channel().writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + ctx.channel().remoteAddress() + " 加入"));
-        for (Channel channel : channels) {
-            System.out.println("\n[SERVER] - " + incoming.remoteAddress() + " 加入");
-            channel.writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + incoming.remoteAddress() + " 加入"));
-        }
-    }
-
-    @Override
-    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {  // (3)
-        Channel incoming = ctx.channel();
-        for (Channel channel : channels) {
-            channel.writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + incoming.remoteAddress() + " 离开"));
-        }
-        System.out.println("\nClient:"+incoming.remoteAddress() +"离开");
-        channels.remove(ctx.channel());
-    }
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception { // (5)
-        Channel incoming = ctx.channel();
-        System.out.println("\nClient:"+incoming.remoteAddress()+"在线");
-    }
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception { // (6)
-        Channel incoming = ctx.channel();
-        System.out.println("\nClient:"+incoming.remoteAddress()+"掉线");
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
-        throws Exception {
-        Channel incoming = ctx.channel();
-        System.out.println("\nClient:"+incoming.remoteAddress()+"异常");
-        // 当出现异常就关闭连接
-        cause.printStackTrace();
-        ctx.close();
-    }
+//    @Override
+//    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {  // (2)
+//        System.out.println(this);
+//        Channel incoming = ctx.channel();
+//        channels.add(ctx.channel());
+//        ctx.channel().writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + ctx.channel().remoteAddress() + " 加入"));
+//        for (Channel channel : channels) {
+//            System.out.println("\n[SERVER] - " + incoming.remoteAddress() + " 加入");
+//            channel.writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + incoming.remoteAddress() + " 加入"));
+//        }
+//    }
+//
+//    @Override
+//    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {  // (3)
+//        Channel incoming = ctx.channel();
+//        for (Channel channel : channels) {
+//            channel.writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + incoming.remoteAddress() + " 离开"));
+//        }
+//        System.out.println("\nClient:"+incoming.remoteAddress() +"离开");
+//        channels.remove(ctx.channel());
+//    }
+//
+//    @Override
+//    public void channelActive(ChannelHandlerContext ctx) throws Exception { // (5)
+//        Channel incoming = ctx.channel();
+//        incoming.writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + incoming.remoteAddress() + " 离开"));
+//        System.out.println("\nClient:"+incoming.remoteAddress()+"在线");
+//    }
+//
+//    @Override
+//    public void channelInactive(ChannelHandlerContext ctx) throws Exception { // (6)
+//        Channel incoming = ctx.channel();
+//        System.out.println("\nClient:"+incoming.remoteAddress()+"掉线");
+//    }
+//
+//    @Override
+//    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
+//        throws Exception {
+//        Channel incoming = ctx.channel();
+//        System.out.println("\nClient:"+incoming.remoteAddress()+"异常");
+//        // 当出现异常就关闭连接
+//        cause.printStackTrace();
+//        ctx.close();
+//    }
 }

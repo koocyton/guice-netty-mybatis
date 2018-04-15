@@ -32,7 +32,7 @@ public class ApplicationHandler  extends SimpleChannelInboundHandler<FullHttpReq
         if (uri.equals(websocketPath)) {
             pipeline.addLast(new WebSocketServerCompressionHandler());
             pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
-            pipeline.addLast(new WebSocketFrameHandler());
+            pipeline.addLast(new WebSocketFrameHandler(this.injector));
             ctx.fireChannelRead(httpRequest.retain());
             return;
         }

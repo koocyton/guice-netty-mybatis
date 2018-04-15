@@ -4,8 +4,6 @@ import com.doopp.gauss.server.dispatcher.RequestDispatcher;
 import com.google.inject.Injector;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
-import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 
