@@ -2,6 +2,8 @@ package com.doopp.gauss.server.handler;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
+
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -15,6 +17,10 @@ public class StaticFileResourceHandler extends SimpleChannelInboundHandler<FullH
 	protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest httpRequest) throws Exception {
 
 		String uri = httpRequest.uri();
+		if (uri.substring(uri.length()-1).equals("/")) {
+			uri = uri + "index.html";
+		}
+
 		java.io.InputStream ins = getClass().getResourceAsStream("/public" + uri);
 
 		if (ins==null) {
@@ -36,11 +42,18 @@ public class StaticFileResourceHandler extends SimpleChannelInboundHandler<FullH
 
 		DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(version, status, buf);
 		HttpHeaders headers = httpResponse.headers();
+		if (HttpUtil.isKeepAlive(httpRequest)) {
+			headers.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+		}
 		headers.set(HttpHeaderNames.CONTENT_TYPE, contentType(uri.substring(uri.lastIndexOf(".") + 1)));
 		// headers.set(HttpHeaderNames.SERVER, "Netty 1.1");
 		headers.set(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(buf.readableBytes()));
 		ctx.write(httpResponse);
-		ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(ChannelFutureListener.CLOSE);
+		// ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(ChannelFutureListener.CLOSE);
+		ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+		if (!HttpUtil.isKeepAlive(httpRequest)) {
+			future.addListener(ChannelFutureListener.CLOSE);
+		}
 	}
 
 	private String contentType(String fileExt) {

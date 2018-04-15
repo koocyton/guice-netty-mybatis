@@ -32,7 +32,10 @@ public class SessionFilter {
 
         // 不过滤的uri
         String[] notFilters = new String[]{
-            "/api",
+                "/api",
+                "/js",
+                "/css",
+                "/img",
         };
 
         // 是否过滤

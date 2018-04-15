@@ -1,0 +1,71 @@
+* {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    vertical-align: middle;
+}
+
+html, body {
+}
+
+body {
+    background-color: #eeeeee;
+    font-size: 14px;
+    color: #5d656b;
+}
+
+a, button, input {
+    outline: 0 none;
+    text-decoration: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+input {
+    box-sizing: border-box;
+}
+
+.head-content {
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: block;
+    height: 44px;
+    line-height: 44px;
+    background-color: #dddddd;
+}
+
+.body-content {
+    width: 100%;
+    text-align: center;
+}
+
+.center-content, .message-layout, .canvas-layout {
+    top: 0;
+    left: 0;
+    height: 600px;
+}
+
+.center-content {
+    position: relative;
+    margin: 0 auto;
+    max-width: 640px;
+    min-width: 320px;
+}
+
+.message-layout {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow-y: scroll;
+}
+
+.canvas-layout {
+    position: absolute;
+    width: 100%;
+}
+
+.message-layout div {
+    text-align: left;
+    margin: 5px 110px;
+}
