@@ -22,11 +22,21 @@
 
     $.extend({
         infect : function (wsUrl) {
-            this.ws = $.websocket(wsUrl);
-            this.send = function(message){
-                $.logger.info(this.ws);
-                this.ws.send(message);
+
+            let ws = $.websocket(wsUrl);
+
+            ws.onopen = function(){
+                console.log("socket has been opened");
+                var message = {
+                    nickname: "benben_2015",
+                    email: "123456@qq.com",
+                    content: "I love programming"
+                };
+                message = JSON.stringify(message);
+                this.send(message);
             };
+
+            return ws;
         }
     });
 
@@ -55,7 +65,7 @@
     $(document).ready(function () {
         let a = $.infect("/game-socket");
         $(window).bind("resize", function () {
-            a.send("/game-socket");
+            // a.send("/game-socket");
             // infect.resize($(window).width(), $(window).height());
         }).trigger("resize");
     });
