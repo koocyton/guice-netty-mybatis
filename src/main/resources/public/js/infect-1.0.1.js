@@ -33,10 +33,18 @@
                     content: "I love programming"
                 };
                 message = JSON.stringify(message);
-                this.send(message);
+                ws.send(message);
             };
 
-            return ws;
+            ws.onmessage = function() {
+
+            };
+
+            this.send = function(message) {
+                ws.send(message);
+            };
+
+            return this;
         }
     });
 
@@ -65,7 +73,6 @@
     $(document).ready(function () {
         let a = $.infect("/game-socket");
         $(window).bind("resize", function () {
-            // a.send("/game-socket");
             // infect.resize($(window).width(), $(window).height());
         }).trigger("resize");
     });
