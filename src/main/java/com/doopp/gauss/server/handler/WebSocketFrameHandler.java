@@ -1,7 +1,7 @@
 package com.doopp.gauss.server.handler;
 
 import com.google.inject.Injector;
-import io.netty.channel.Channel;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
@@ -24,8 +24,6 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame socketFrame) throws Exception {
 
-        System.out.print(" \n  BBBBBBB ");
-
         if (socketFrame instanceof TextWebSocketFrame) {
             handleText(ctx, (TextWebSocketFrame) socketFrame);
         }
@@ -33,33 +31,18 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
             handleBinary(ctx, (BinaryWebSocketFrame) socketFrame);
         }
         else {
-//            String message = "unsupported frame type: " + frame.getClass().getName();
-//            throw new UnsupportedOperationException(message);
+            String message = "unsupported frame type: " + socketFrame.getClass().getName();
+            throw new UnsupportedOperationException(message);
         }
-
-//        Channel incoming = ctx.channel();
-//        for (Channel channel : channels) {
-//            if (channel != incoming){
-//                channel.writeAndFlush(new TextWebSocketFrame("[" + incoming.remoteAddress() + "]" + msg.text()));
-//            } else {
-//                channel.writeAndFlush(new TextWebSocketFrame("[you]" + msg.text() ));
-//            }
-//        }
     }
 
     private void handleText(ChannelHandlerContext ctx, TextWebSocketFrame socketFrame) {
-        System.out.print("\n >>> " + socketFrame);
-//        ByteBuf buf = socketFrame.content();
-//        System.out.println(buf.array().length); //16M的array字节数组大小！？
-//
-//        // Send the uppercase string back.
-//        String text = socketFrame.text();
-//        logger.info("{} received {}", ctx.channel(), text);
-//        ctx.channel().writeAndFlush(new TextWebSocketFrame("hello"));
-//
-//        //Request wsRequest = JSONUtil.fromJSON(request, JsonRequest.class);
-//        Request request = JSON.parseObject(text, JsonRequest.class);
-//        handle(ctx, request);
+        ByteBuf buf = socketFrame.content();
+        byte[] byteArray = new byte[buf.capacity()];
+        buf.readBytes(byteArray);
+        String content = new String(byteArray);
+        System.out.println("\n>>>" + content + "\n>>>" + socketFrame);
+        ctx.channel().writeAndFlush(new TextWebSocketFrame(content));
     }
 
     private void handleBinary(ChannelHandlerContext ctx, BinaryWebSocketFrame socketFrame) {
