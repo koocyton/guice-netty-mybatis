@@ -2,10 +2,27 @@
 
     'use strict';
 
+    Date.prototype.Format = function (fmt) {
+        var o = {
+            "M+": this.getMonth() + 1,
+            "d+": this.getDate(),
+            "h+": this.getHours(),
+            "m+": this.getMinutes(),
+            "s+": this.getSeconds(),
+            "q+": Math.floor((this.getMonth() + 3) / 3),
+            "S": this.getMilliseconds()
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+
     $.extend({
         logger: function () {
             if (window.console && window.console.log && arguments.length >= 1) {
-                window.console.log("arguments.length : " + arguments.length);
+                let dateTime = new Date().Format("yyyy-MM-dd hh:mm:ss");
+                window.console.log("[" + dateTime + "] arguments.length : " + arguments.length);
                 for (var ii = 0; ii < arguments.length; ii++) {
                     window.console.log(arguments[ii]);
                 }
@@ -24,7 +41,7 @@
                 let ws = /^ws/.test(uri) ? new WebSocket(uri) : new WebSocket(protocol + window.location.host + uri);
 
                 ws.onopen = function(){
-                    console.log("socket has been opened");
+                    $.logger("socket has been opened");
                 };
 
                 ws.onmessage = function(e) {
@@ -36,6 +53,7 @@
 
             let ws = connect(uri);
             ws.onclose = function() {
+                $.logger("socket has been closed");
                 setTimeout(function(){
                     ws = connect(uri);
                 }, 5000);
@@ -60,7 +78,6 @@
                 pixiApp = new PIXI.Application($(window).width(), $(window).height(), {transparent: true});
                 pixiBox = $(".game-box");
                 pixiBox.prepend(pixiApp.view);
-                return this;
             };
 
             this.send = function(message) {
@@ -71,14 +88,15 @@
                 pixiBox.children("canvas").css({width: $(window).width(), height: $(window).height()});
             };
 
-            return this.init();
+            this.init();
+            return this;
         }
     });
 
     $(document).ready(function () {
-        let ift = $.infect("/game-socket");
-        $(window).bind("resize", function () {
-            ift.resize();
+        window.infect = $.infect("/game-socket");
+        $(window).bind("resize", function(){
+            window.infect.resize();
         }).trigger("resize");
     });
 

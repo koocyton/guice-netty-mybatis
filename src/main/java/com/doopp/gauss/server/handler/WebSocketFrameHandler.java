@@ -39,6 +39,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     private void handleText(ChannelHandlerContext ctx, TextWebSocketFrame socketFrame) {
         ByteBuf buf = socketFrame.content();
         byte[] byteArray = new byte[buf.capacity()];
+        // byte[] byteArray = new byte[buf.readableBytes()];
         buf.readBytes(byteArray);
         String content = new String(byteArray);
         System.out.println("\n>>>" + content + "\n>>>" + socketFrame);
