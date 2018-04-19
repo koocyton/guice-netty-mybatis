@@ -13,16 +13,25 @@ import io.netty.handler.codec.http.*;
 
 public class StaticFileResourceHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
+	private String requirePath;
+
+	public StaticFileResourceHandler(String requirePath) {
+		this.requirePath = requirePath;
+	}
+
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest httpRequest) throws Exception {
 
-		String uri = httpRequest.uri();
-		if (uri.equals("/")) {
-			uri = uri + "index.html";
+		java.io.InputStream ins = getClass().getResourceAsStream("/public" + this.requirePath);
+
+		// 找不到文件的话
+		if (ins==null) {
+			FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND);
+			ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+			return;
 		}
 
-		java.io.InputStream ins = getClass().getResourceAsStream("/public" + uri);
-
+		// 读取文件
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		byte[] bs = new byte[1024];
 		int len;
@@ -30,17 +39,15 @@ public class StaticFileResourceHandler extends SimpleChannelInboundHandler<FullH
 			bout.write(bs, 0, len);
 		}
 		ins.close();
-
 		ByteBuf buf = Unpooled.wrappedBuffer(bout.toByteArray()).retain();
-		HttpResponseStatus status = new HttpResponseStatus(200, "Ok");
-		HttpVersion version = new HttpVersion("HTTP/1.1", false);
 
-		DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(version, status, buf);
+		// 返回
+		DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, buf);
 		HttpHeaders headers = httpResponse.headers();
 		if (HttpUtil.isKeepAlive(httpRequest)) {
 			headers.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
 		}
-		headers.set(HttpHeaderNames.CONTENT_TYPE, contentType(uri.substring(uri.lastIndexOf(".") + 1)));
+		headers.set(HttpHeaderNames.CONTENT_TYPE, contentType(this.requirePath.substring(this.requirePath.lastIndexOf(".") + 1)));
 		// headers.set(HttpHeaderNames.SERVER, "Netty 1.1");
 		headers.set(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(buf.readableBytes()));
 		ctx.write(httpResponse);

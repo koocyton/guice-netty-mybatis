@@ -8,6 +8,8 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 
+import java.net.URI;
+
 public class ApplicationHandler  extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private Injector injector;
@@ -22,14 +24,15 @@ public class ApplicationHandler  extends SimpleChannelInboundHandler<FullHttpReq
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest httpRequest) throws Exception {
 
-        // uri
-        String uri = httpRequest.uri();
+        // requestUri
+        URI requestUri= URI.create(httpRequest.uri());
+        String requestPath = requestUri.getPath();
 
         // pipeline
         ChannelPipeline pipeline = ctx.channel().pipeline();
 
         // web socket
-        if (uri.equals(websocketPath)) {
+        if (requestPath.equals(websocketPath)) {
             pipeline.addLast(new WebSocketServerCompressionHandler());
             pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
             pipeline.addLast(new WebSocketFrameHandler(this.injector));
@@ -38,13 +41,12 @@ public class ApplicationHandler  extends SimpleChannelInboundHandler<FullHttpReq
         }
 
         // 根目录加上 index.html
-        uri = uri.equals("/") ? uri + "index.html" : uri;
-
+        requestPath = requestPath.equals("/") ? requestPath + "index.html" : requestPath;
         // 读取资源
-        java.io.InputStream ins = getClass().getResourceAsStream("/public" + uri);
+        java.io.InputStream ins = getClass().getResourceAsStream("/public" + requestPath);
         // static file
         if (ins!=null) {
-            pipeline.addLast(new StaticFileResourceHandler());
+            pipeline.addLast(new StaticFileResourceHandler(requestPath));
             ctx.fireChannelRead(httpRequest.retain());
         }
         // request
