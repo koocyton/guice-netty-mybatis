@@ -3,12 +3,10 @@ package com.doopp.gauss.server.handler;
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.SimpleChannelInboundHandler;
+import com.sun.istack.internal.NotNull;
+import io.netty.channel.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 
 public class StaticFileResourceHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
@@ -49,8 +47,27 @@ public class StaticFileResourceHandler extends SimpleChannelInboundHandler<FullH
 		}
 		headers.set(HttpHeaderNames.CONTENT_TYPE, contentType(this.requirePath.substring(this.requirePath.lastIndexOf(".") + 1)));
 		// headers.set(HttpHeaderNames.SERVER, "Netty 1.1");
-		headers.set(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(buf.readableBytes()));
-		ctx.write(httpResponse);
+		headers.set(HttpHeaderNames.CONTENT_LENGTH, buf.readableBytes());
+		// httpResponse.content().writeBytes(buf);
+		ChannelFuture sendFileFuture = ctx.write(httpResponse);
+		sendFileFuture.addListener(new ChannelProgressiveFutureListener() {
+
+			@Override
+			public void operationComplete(ChannelProgressiveFuture future)
+				throws Exception {
+				System.out.println("Transfer complete.");
+
+			}
+
+			@Override
+			public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) throws Exception {
+				if(total < 0)
+					System.err.println("Transfer progress: " + progress);
+				else
+					System.err.println("Transfer progress: " + progress + "/" + total);
+			}
+		});
+		// ctx.writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);
 		// ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(ChannelFutureListener.CLOSE);
 		ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
 		if (!HttpUtil.isKeepAlive(httpRequest)) {

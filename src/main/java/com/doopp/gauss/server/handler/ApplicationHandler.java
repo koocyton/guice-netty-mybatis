@@ -7,6 +7,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
+import java.io.InputStream;
 
 import java.net.URI;
 
@@ -43,10 +44,11 @@ public class ApplicationHandler  extends SimpleChannelInboundHandler<FullHttpReq
         // 根目录加上 index.html
         requestPath = requestPath.equals("/") ? requestPath + "index.html" : requestPath;
         // 读取资源
-        java.io.InputStream ins = getClass().getResourceAsStream("/public" + requestPath);
+        InputStream ins = getClass().getResourceAsStream("/public" + requestPath);
         // static file
         if (ins!=null) {
-            pipeline.addLast(new StaticFileResourceHandler(requestPath));
+            // pipeline.addLast(new StaticFileResourceHandler(requestPath));
+            pipeline.addLast(new HttpStaticFileServerHandler());
             ctx.fireChannelRead(httpRequest.retain());
         }
         // request
