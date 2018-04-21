@@ -1,5 +1,6 @@
 package com.doopp.gauss.server.handler;
 
+import com.doopp.gauss.server.dispatcher.RequestDispatcher;
 import com.google.inject.Injector;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -17,17 +18,29 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 
     private Injector injector;
 
+    private WebSocketService webSocketService;
+
     public WebSocketFrameHandler(Injector injector) {
         this.injector = injector;
+        this.webSocketService = injector.getInstance(WebSocketService.class);
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame socketFrame) throws Exception {
 
         if (socketFrame instanceof TextWebSocketFrame) {
+
+            ByteBuf buf = socketFrame.content();
+            byte[] byteArray = new byte[buf.capacity()];
+            // byte[] byteArray = new byte[buf.readableBytes()];
+            buf.readBytes(byteArray);
+            String content = new String(byteArray);
+
+            this.webSocketService.onTextMessage(ctx.channel(), message);
             handleText(ctx, (TextWebSocketFrame) socketFrame);
         }
         else if (socketFrame instanceof BinaryWebSocketFrame) {
+            this.webSocketService.onTextMessage(ctx.channel(), message);
             handleBinary(ctx, (BinaryWebSocketFrame) socketFrame);
         }
         else {
