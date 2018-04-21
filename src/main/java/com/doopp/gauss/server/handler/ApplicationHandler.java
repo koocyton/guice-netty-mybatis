@@ -47,8 +47,7 @@ public class ApplicationHandler  extends SimpleChannelInboundHandler<FullHttpReq
         InputStream ins = getClass().getResourceAsStream("/public" + requestPath);
         // static file
         if (ins!=null) {
-            // pipeline.addLast(new StaticFileResourceHandler(requestPath));
-            pipeline.addLast(new HttpStaticFileServerHandler());
+            pipeline.addLast(new StaticFileResourceHandler(requestPath));
             ctx.fireChannelRead(httpRequest.retain());
         }
         // request

@@ -3,7 +3,6 @@ package com.doopp.gauss.server.handler;
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 
-import com.sun.istack.internal.NotNull;
 import io.netty.channel.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -42,37 +41,20 @@ public class StaticFileResourceHandler extends SimpleChannelInboundHandler<FullH
 		// 返回
 		DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, buf);
 		HttpHeaders headers = httpResponse.headers();
-		if (HttpUtil.isKeepAlive(httpRequest)) {
-			headers.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-		}
+		//if (HttpUtil.isKeepAlive(httpRequest)) {
+		//	headers.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+		//}
 		headers.set(HttpHeaderNames.CONTENT_TYPE, contentType(this.requirePath.substring(this.requirePath.lastIndexOf(".") + 1)));
 		// headers.set(HttpHeaderNames.SERVER, "Netty 1.1");
 		headers.set(HttpHeaderNames.CONTENT_LENGTH, buf.readableBytes());
 		// httpResponse.content().writeBytes(buf);
-		ChannelFuture sendFileFuture = ctx.write(httpResponse);
-		sendFileFuture.addListener(new ChannelProgressiveFutureListener() {
-
-			@Override
-			public void operationComplete(ChannelProgressiveFuture future)
-				throws Exception {
-				System.out.println("Transfer complete.");
-
-			}
-
-			@Override
-			public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) throws Exception {
-				if(total < 0)
-					System.err.println("Transfer progress: " + progress);
-				else
-					System.err.println("Transfer progress: " + progress + "/" + total);
-			}
-		});
-		// ctx.writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);
+		// ChannelFuture future = ctx.writeAndFlush(httpResponse);
+		ctx.writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);
 		// ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(ChannelFutureListener.CLOSE);
-		ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-		if (!HttpUtil.isKeepAlive(httpRequest)) {
-			future.addListener(ChannelFutureListener.CLOSE);
-		}
+		// ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+		//if (!HttpUtil.isKeepAlive(httpRequest)) {
+		//	future.addListener(ChannelFutureListener.CLOSE);
+		//}
 	}
 
 	private String contentType(String fileExt) {
@@ -272,56 +254,4 @@ public class StaticFileResourceHandler extends SimpleChannelInboundHandler<FullH
 		fileExt2Mimes.put("z", "application/x-compress");
 		fileExt2Mimes.put("zip", "application/zip");
 	}
-
-
-//	private void process(ChannelHandlerContext ctx, FullHttpRequest msg, String uri, int dotPos) throws IOException {
-//		// System.out.print(" >>> " + getFile().getParent() + "/resources/public");
-//		String f = getFile().getParent() + "/resources/public" + uri;
-//		File file = new File(f);
-//		HttpVersion version = new HttpVersion("HTTP/1.1", false);
-//		HttpResponseStatus status;
-//		ByteBuf buf;
-//		if (!file.exists()) {
-//			ctx.fireChannelRead(msg.retain());
-//			return;
-//		}
-//		if (file.exists()) {
-//			logger.debug("file resource: {}", file);
-//			FileInputStream fin = new FileInputStream(file);
-//			ByteArrayOutputStream bout = new ByteArrayOutputStream((int) file.length());
-//			byte[] bs = new byte[1024];
-//			int len;
-//			while ((len = fin.read(bs)) != -1) {
-//				bout.write(bs, 0, len);
-//			}
-//			fin.close();
-//			buf = Unpooled.wrappedBuffer(bout.toByteArray()).retain();
-//			status = new HttpResponseStatus(200, "Ok");
-//		} else {
-//			java.io.InputStream ins = getClass().getResourceAsStream(uri);
-//			if (ins != null) {
-//				logger.debug("classpath resource:{}", uri);
-//				ByteArrayOutputStream bout = new ByteArrayOutputStream();
-//				byte[] bs = new byte[1024];
-//				int len;
-//				while ((len = ins.read(bs)) != -1) {
-//					bout.write(bs, 0, len);
-//				}
-//				ins.close();
-//				buf = Unpooled.wrappedBuffer(bout.toByteArray()).retain();
-//				status = new HttpResponseStatus(200, "Ok");
-//			} else {
-//				logger.warn("404:{}", file);
-//				buf = Unpooled.EMPTY_BUFFER;
-//				status = new HttpResponseStatus(404, "file not found!");
-//			}
-//		}
-//		DefaultFullHttpResponse httpResp = new DefaultFullHttpResponse(version, status, buf);
-//		HttpHeaders headers = httpResp.headers();
-//		headers.set(HttpHeaderNames.CONTENT_TYPE, contentType(uri.substring(dotPos + 1)));
-//		headers.set(HttpHeaderNames.SERVER, SERVER_NAME);
-//		// headers.set(HttpHeaderNames.DATE, date);
-//		headers.set(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(buf.readableBytes()));
-//		ctx.writeAndFlush(httpResp).addListener(ChannelFutureListener.CLOSE);
-//	}
 }
