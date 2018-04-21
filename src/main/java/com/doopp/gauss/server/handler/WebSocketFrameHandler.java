@@ -1,25 +1,16 @@
 package com.doopp.gauss.server.handler;
 
-import com.doopp.gauss.server.dispatcher.RequestDispatcher;
 import com.doopp.gauss.server.listener.WebSocketListener;
-import com.google.inject.Injector;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.group.ChannelGroup;
-import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import io.netty.util.concurrent.GlobalEventExecutor;
+import io.netty.handler.codec.http.websocketx.*;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
-    private static ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-
     private WebSocketListener webSocketListener;
 
-    public WebSocketFrameHandler(WebSocketListener webSocketListener) {
+    WebSocketFrameHandler(WebSocketListener webSocketListener) {
         this.webSocketListener = webSocketListener;
     }
 
@@ -31,6 +22,12 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         }
         else if (socketFrame instanceof BinaryWebSocketFrame) {
             handleBinary(ctx, (BinaryWebSocketFrame) socketFrame);
+        }
+        else if (socketFrame instanceof PingWebSocketFrame) {
+            handlePing(ctx);
+        }
+        else if (socketFrame instanceof PongWebSocketFrame) {
+            handlePong(ctx);
         }
         else {
             String message = "unsupported frame type: " + socketFrame.getClass().getName();
@@ -52,48 +49,21 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         this.webSocketListener.onBinaryMessage(ctx.channel(), data);
     }
 
-    @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {  // (2)
-        System.out.println(this);
-        Channel incoming = ctx.channel();
-        channels.add(ctx.channel());
-        ctx.channel().writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + ctx.channel().remoteAddress() + " 加入"));
-        for (Channel channel : channels) {
-            System.out.println("\n[SERVER] - " + incoming.remoteAddress() + " 加入");
-            channel.writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + incoming.remoteAddress() + " 加入"));
-        }
+    private void handlePing(ChannelHandlerContext ctx) {
+        this.webSocketListener.onPingMessage(ctx.channel());
+    }
+
+    private void handlePong(ChannelHandlerContext ctx) {
+        this.webSocketListener.onPongMessage(ctx.channel());
     }
 
     @Override
-    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {  // (3)
-        Channel incoming = ctx.channel();
-        for (Channel channel : channels) {
-            channel.writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + incoming.remoteAddress() + " 离开"));
-        }
-        System.out.println("\nClient:"+incoming.remoteAddress() +"离开");
-        channels.remove(ctx.channel());
+    public void handlerAdded(ChannelHandlerContext ctx) {
+        this.webSocketListener.onConnect(ctx.channel());
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception { // (5)
-        Channel incoming = ctx.channel();
-        incoming.writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + incoming.remoteAddress() + " 离开"));
-        System.out.println("\nClient:"+incoming.remoteAddress()+"在线");
-    }
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception { // (6)
-        Channel incoming = ctx.channel();
-        System.out.println("\nClient:"+incoming.remoteAddress()+"掉线");
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
-        throws Exception {
-        Channel incoming = ctx.channel();
-        System.out.println("\nClient:"+incoming.remoteAddress()+"异常");
-        // 当出现异常就关闭连接
-        cause.printStackTrace();
-        ctx.close();
+    public void handlerRemoved(ChannelHandlerContext ctx) {
+        this.webSocketListener.onDisconnect(ctx.channel());
     }
 }

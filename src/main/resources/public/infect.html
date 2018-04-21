@@ -34,7 +34,9 @@
 <script>
 function loginGame(form) {
     let val = $($(form).find("input")[0]).val();
-    $.logger(val, infect.prototype);
+    if (typeof infect.send==="function") {
+        window.infect.send(val);
+    }
     return false;
 }
 </script>

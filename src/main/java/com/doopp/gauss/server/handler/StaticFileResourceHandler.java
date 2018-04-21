@@ -12,7 +12,7 @@ public class StaticFileResourceHandler extends SimpleChannelInboundHandler<FullH
 
 	private String requirePath;
 
-	public StaticFileResourceHandler(String requirePath) {
+	StaticFileResourceHandler(String requirePath) {
 		this.requirePath = requirePath;
 	}
 

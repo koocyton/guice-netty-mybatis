@@ -11,7 +11,7 @@ public class Http1RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
 
     private Injector injector;
 
-    public Http1RequestHandler(Injector injector) {
+    Http1RequestHandler(Injector injector) {
         this.injector = injector;
     }
 

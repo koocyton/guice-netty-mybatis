@@ -85,6 +85,7 @@
             };
 
             this.resize = function() {
+                ws.send("{\"aaa\":\"bbb\"}");
                 pixiBox.children("canvas").css({width: $(window).width(), height: $(window).height()});
             };
 

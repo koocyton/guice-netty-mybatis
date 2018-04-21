@@ -1,5 +1,7 @@
 package com.doopp.gauss.server.handler;
 
+import com.doopp.gauss.common.listener.GameSocketListener;
+import com.doopp.gauss.server.dispatcher.RequestDispatcher;
 import com.google.inject.Injector;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
@@ -36,7 +38,7 @@ public class ApplicationHandler  extends SimpleChannelInboundHandler<FullHttpReq
         if (requestPath.equals(websocketPath)) {
             pipeline.addLast(new WebSocketServerCompressionHandler());
             pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
-            pipeline.addLast(new WebSocketFrameHandler(this.injector));
+            pipeline.addLast(new WebSocketFrameHandler(this.injector.getInstance(GameSocketListener.class)));
             ctx.fireChannelRead(httpRequest.retain());
             return;
         }
