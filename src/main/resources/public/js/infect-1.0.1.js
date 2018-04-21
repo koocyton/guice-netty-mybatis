@@ -16,9 +16,10 @@
         for (var k in o)
             if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
         return fmt;
-    }
+    };
 
     $.extend({
+
         logger: function () {
             if (window.console && window.console.log && arguments.length >= 1) {
                 let dateTime = new Date().Format("yyyy-MM-dd hh:mm:ss");
@@ -31,46 +32,33 @@
     });
 
     $.extend({
+        infect : function (wsUrl) {
 
-        websocket: function(uri) {
-
-             let connect = function(uri) {
-
+            let connect = function(wsUrl) {
                 let protocol = /^https/.test(window.location.protocol) ? "wss\:\/\/" : "ws\:\/\/";
-
-                let ws = /^ws/.test(uri) ? new WebSocket(uri) : new WebSocket(protocol + window.location.host + uri);
-
+                let ws = /^ws/.test(wsUrl) ? new WebSocket(wsUrl) : new WebSocket(protocol + window.location.host + wsUrl);
                 ws.onopen = function(){
                     $.logger("socket has been opened");
                 };
-
                 ws.onmessage = function(e) {
                     $.logger(e.data)
                 };
-
                 return ws;
             };
 
-            let ws = connect(uri);
-            ws.onclose = function() {
+            let conn = connect(wsUrl);
+
+            conn.onclose = function() {
                 $.logger("socket has been closed");
                 setTimeout(function(){
-                    ws = connect(uri);
+                    conn = connect(wsUrl);
                 }, 5000);
             };
 
             this.send = function(message) {
-                ws.send(message);
+                conn.send(message);
             };
 
-            return this;
-        }
-    });
-
-    $.extend({
-        infect : function (wsUrl) {
-
-            let ws = $.websocket(wsUrl);
             let pixiApp = null;
             let pixiBox = null;
 
@@ -80,16 +68,12 @@
                 pixiBox.prepend(pixiApp.view);
             };
 
-            this.send = function(message) {
-                ws.send(message);
-            };
-
             this.resize = function() {
-                ws.send("{\"aaa\":\"bbb\"}");
                 pixiBox.children("canvas").css({width: $(window).width(), height: $(window).height()});
             };
 
             this.init();
+
             return this;
         }
     });
@@ -97,7 +81,7 @@
     $(document).ready(function () {
         window.infect = $.infect("/game-socket");
         $(window).bind("resize", function(){
-            window.infect.resize();
+             window.infect.resize();
         }).trigger("resize");
     });
 

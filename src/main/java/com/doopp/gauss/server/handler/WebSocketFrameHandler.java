@@ -1,6 +1,7 @@
 package com.doopp.gauss.server.handler;
 
 import com.doopp.gauss.server.listener.WebSocketListener;
+import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -35,15 +36,19 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         }
     }
 
-    private void handleText(ChannelHandlerContext ctx, TextWebSocketFrame socketFrame) {
-        ByteBuf buf = socketFrame.content();
+    private void handleText(ChannelHandlerContext ctx, TextWebSocketFrame textFrame) {
+        ByteBuf buf = textFrame.content();
         byte[] byteArray = new byte[buf.capacity()];
         buf.readBytes(byteArray);
-        this.webSocketListener.onTextMessage(ctx.channel(), new String(byteArray));
+        String content = new String(byteArray);
+        if (content.length()>1) {
+            this.webSocketListener.onTextMessage(ctx.channel(), content);
+            this.webSocketListener.onJsonMessage(ctx.channel(), new Gson().fromJson(content, Object.class));
+        }
     }
 
-    private void handleBinary(ChannelHandlerContext ctx, BinaryWebSocketFrame socketFrame) {
-        ByteBuf buf = socketFrame.content();
+    private void handleBinary(ChannelHandlerContext ctx, BinaryWebSocketFrame binaryFrame) {
+        ByteBuf buf = binaryFrame.content();
         byte[] data = new byte[buf.readableBytes()];
         buf.readBytes(data);
         this.webSocketListener.onBinaryMessage(ctx.channel(), data);

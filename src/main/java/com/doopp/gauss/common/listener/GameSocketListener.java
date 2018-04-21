@@ -5,6 +5,7 @@ import com.doopp.gauss.server.listener.WebSocketListener;
 import com.google.gson.Gson;
 import com.google.inject.Singleton;
 import io.netty.channel.Channel;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,9 +23,12 @@ public class GameSocketListener extends WebSocketListener {
 
     @Override
     public void onTextMessage(Channel channel, String message) {
-        Long userId = 123L;
-        Object user = (new Gson()).fromJson(message, Object.class);
-        channel.write("");
+        channel.writeAndFlush(new TextWebSocketFrame("[you say]" + message));
+    }
+
+    @Override
+    public void onJsonMessage(Channel channel, Object json) {
+        channel.writeAndFlush(new TextWebSocketFrame("[you say]" + (new Gson()).toJson(json)));
     }
 
     @Override

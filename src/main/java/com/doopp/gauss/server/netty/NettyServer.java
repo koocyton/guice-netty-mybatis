@@ -16,6 +16,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
+import io.netty.handler.stream.ChunkedWriteHandler;
 
 public class NettyServer {
 
@@ -74,7 +75,7 @@ public class NettyServer {
 				pipeline.addLast(new HttpServerCodec());
 				// HttpObjectAggregator：将HTTP消息的多个部分合成一条完整的HTTP消息
 				pipeline.addLast(new HttpObjectAggregator(65536));
-				// pipeline.addLast(new ChunkedWriteHandler());
+				pipeline.addLast(new ChunkedWriteHandler());
 
 				// my application
 				pipeline.addLast(new ApplicationHandler(injector, "/game-socket"));

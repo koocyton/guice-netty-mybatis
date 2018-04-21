@@ -11,11 +11,12 @@ public abstract class WebSocketListener {
     }
 
     public void onTextMessage(Channel channel, String message) {
+    }
 
+    public void onJsonMessage(Channel channel, Object jsonClass) {
     }
 
     public void onBinaryMessage(Channel channel, byte[] message) {
-
     }
 
     public void onPingMessage(Channel channel) {
