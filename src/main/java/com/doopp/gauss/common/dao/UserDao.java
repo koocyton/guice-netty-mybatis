@@ -5,7 +5,7 @@ import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
-public interface UserDao {
+public interface UserDao extends BaseDao {
 
     @Select("SELECT * FROM `user` WHERE account=#{account,jdbcType=VARCHAR} LIMIT 1")
     User fetchByAccount(String account);
