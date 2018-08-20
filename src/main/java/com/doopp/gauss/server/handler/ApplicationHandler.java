@@ -1,14 +1,10 @@
 package com.doopp.gauss.server.handler;
 
-import com.doopp.gauss.common.listener.GameSocketListener;
-import com.doopp.gauss.server.dispatcher.RequestDispatcher;
 import com.google.inject.Injector;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
-import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import java.io.InputStream;
 
 import java.net.URI;
@@ -35,13 +31,13 @@ public class ApplicationHandler  extends SimpleChannelInboundHandler<FullHttpReq
         ChannelPipeline pipeline = ctx.channel().pipeline();
 
         // web socket
-        if (requestPath.equals(websocketPath)) {
-            pipeline.addLast(new WebSocketServerCompressionHandler());
-            pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
-            pipeline.addLast(new WebSocketFrameHandler(this.injector.getInstance(GameSocketListener.class)));
-            ctx.fireChannelRead(httpRequest.retain());
-            return;
-        }
+        // if (requestPath.equals(websocketPath)) {
+        //    pipeline.addLast(new WebSocketServerCompressionHandler());
+        //    pipeline.addLast(new WebSocketServerProtocolHandler("/game-socket", null, true));
+        //    pipeline.addLast(new WebSocketFrameHandler(this.injector.getInstance(GameSocketListener.class)));
+        //    ctx.fireChannelRead(httpRequest.retain());
+        //    return;
+        // }
 
         // 根目录加上 index.html
         requestPath = requestPath.equals("/") ? requestPath + "index.html" : requestPath;

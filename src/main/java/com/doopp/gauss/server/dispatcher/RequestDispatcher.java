@@ -6,21 +6,16 @@ import com.doopp.gauss.server.annotation.RequestParam;
 import com.doopp.gauss.server.annotation.ResponseBody;
 import com.doopp.gauss.server.filter.SessionFilter;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URI;
 import java.util.*;
 
-import com.doopp.gauss.server.ui.ModelMap;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -45,9 +40,6 @@ public class RequestDispatcher {
 
     @Inject
     private SessionFilter sessionFilter;
-
-    @Inject
-    private Configuration viewConfiguration;
 
     public void processor(ChannelHandlerContext ctx, FullHttpRequest httpRequest, FullHttpResponse httpResponse) {
         // filter
@@ -85,7 +77,7 @@ public class RequestDispatcher {
         }
 
         // 用户模板的 modelMap
-        ModelMap modelMap = new ModelMap();
+        // ModelMap modelMap = new ModelMap();
 
         // 将方法的参数找出来，用于注入对应类型的 object
         ArrayList<Class> classList = new ArrayList<>();
@@ -103,12 +95,13 @@ public class RequestDispatcher {
                 for (Parameter parameter : method.getParameters()) {
                     Class parameterClass = Class.forName(parameter.getType().getTypeName());
                     // modelMap 另处理
-                    if (parameterClass==modelMap.getClass()) {
-                        objectList.add(modelMap);
-                        classList.add(parameterClass);
-                    }
+                    // if (parameterClass==modelMap.getClass()) {
+                    //    objectList.add(modelMap);
+                    //    classList.add(parameterClass);
+                    // }
                     // httpRequest
-                    else if (parameterClass==FullHttpRequest.class) {
+                    // else
+                    if (parameterClass==FullHttpRequest.class) {
                         objectList.add(httpRequest);
                         classList.add(parameterClass);
                     }
@@ -158,7 +151,7 @@ public class RequestDispatcher {
         Method method = ctrlObject.getClass().getMethod(methodName, classes);
 
         // content
-        String content;
+        String content = "";
 
         // if json
         if (method.isAnnotationPresent(ResponseBody.class)) {
@@ -178,17 +171,6 @@ public class RequestDispatcher {
                 httpResponse.setStatus(HttpResponseStatus.BAD_GATEWAY);
             }
             httpResponse.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
-        }
-        // if template
-        else {
-            String actionResult = (String) method.invoke(ctrlObject, objects);
-            // get template
-            viewConfiguration.setClassForTemplateLoading(this.getClass(), "/template/" + controllerName);
-            Template template = viewConfiguration.getTemplate(actionResult + ".html");
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            template.process(modelMap, new OutputStreamWriter(outputStream));
-            content = outputStream.toString("UTF-8");
-            httpResponse.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
         }
 
         // write response
