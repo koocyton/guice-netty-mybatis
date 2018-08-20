@@ -17,9 +17,9 @@ public class AccountController {
     private AccountService accountService;
 
     @ResponseBody
-    public String login(@RequestParam("account") String account, @RequestParam("password") String password) throws GaussException {
-        User user = accountService.userLogin(account, password);
-        return accountService.setSession(user);
+    public User login(@RequestParam("account") String account, @RequestParam("password") String password) throws GaussException {
+        return accountService.userLogin(account, password);
+        // return accountService.setSession(user);
     }
 
     @ResponseBody
