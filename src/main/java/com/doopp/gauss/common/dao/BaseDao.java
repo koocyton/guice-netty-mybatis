@@ -18,11 +18,11 @@ public interface BaseDao {
     @Update("UPDATE `user` SET `account`=#{account}, `password`=#{password}, `password_salt`=${password_salt} WHERE `id`=#{id,jdbcType=BIGINT} LIMIT 1")
     void update(User user);
 
-    @SelectProvider(type = TestSqlProvider.class, method = "getSql")
-    @Options(useCache = true, flushCache = false, timeout = 10000)
-    @Results(value = {
-        @Result(id = true, property = "id", column = "test_id", javaType = String.class, jdbcType = JdbcType.VARCHAR),
-        @Result(property = "testText", column = "test_text", javaType = String.class, jdbcType = JdbcType.VARCHAR)
-    })
-    public TestBean get(@Param("id") String id);
+    //    @SelectProvider(type = TestSqlProvider.class, method = "getSql")
+    //    @Options(useCache = true, flushCache = false, timeout = 10000)
+    //    @Results(value = {
+    //        @Result(id = true, property = "id", column = "test_id", javaType = String.class, jdbcType = JdbcType.VARCHAR),
+    //        @Result(property = "testText", column = "test_text", javaType = String.class, jdbcType = JdbcType.VARCHAR)
+    //    })
+    //    public TestBean get(@Param("id") String id);
 }

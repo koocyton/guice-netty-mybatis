@@ -1,27 +1,41 @@
 package com.doopp.gauss.server.handler;
 
-import java.io.ByteArrayOutputStream;
-import java.util.HashMap;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
+import java.net.URI;
+import java.util.HashMap;
 
 public class StaticFileResourceHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+
+	private static Logger logger = LoggerFactory.getLogger(StaticFileResourceHandler.class);
 
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest httpRequest) throws Exception {
 
-		String uri = httpRequest.uri();
-		java.io.InputStream ins = getClass().getResourceAsStream("/public" + uri);
-
+		// 取出 request uri 对应调用的 controller 和 method
+		URI uri = URI.create(httpRequest.uri());
+		// uri path
+		String requirePath = uri.getPath();
+		// resource/public
+		InputStream ins = getClass().getResourceAsStream("/public" + requirePath);
+		logger.info(">>> static : " + requirePath);
+		// 找不到文件的话
 		if (ins==null) {
 			ctx.fireChannelRead(httpRequest.retain());
 			return;
 		}
 
+		// 读取文件
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		byte[] bs = new byte[1024];
 		int len;
@@ -29,18 +43,26 @@ public class StaticFileResourceHandler extends SimpleChannelInboundHandler<FullH
 			bout.write(bs, 0, len);
 		}
 		ins.close();
-
 		ByteBuf buf = Unpooled.wrappedBuffer(bout.toByteArray()).retain();
-		HttpResponseStatus status = new HttpResponseStatus(200, "Ok");
-		HttpVersion version = new HttpVersion("HTTP/1.1", false);
 
-		DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(version, status, buf);
+		// 返回
+		DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, buf);
 		HttpHeaders headers = httpResponse.headers();
-		headers.set(HttpHeaderNames.CONTENT_TYPE, contentType(uri.substring(uri.lastIndexOf(".") + 1)));
+		//if (HttpUtil.isKeepAlive(httpRequest)) {
+		//	headers.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+		//}
+		headers.set(HttpHeaderNames.CONTENT_TYPE, contentType(requirePath.substring(requirePath.lastIndexOf(".") + 1)));
 		// headers.set(HttpHeaderNames.SERVER, "Netty 1.1");
-		headers.set(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(buf.readableBytes()));
+		headers.set(HttpHeaderNames.CONTENT_LENGTH, buf.readableBytes());
+		// httpResponse.content().writeBytes(buf);
+		// ChannelFuture future = ctx.writeAndFlush(httpResponse);
+		// ctx.writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);
+		// ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(ChannelFutureListener.CLOSE);
 		ctx.write(httpResponse);
-		ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(ChannelFutureListener.CLOSE);
+		ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+		if (!HttpUtil.isKeepAlive(httpRequest)) {
+			future.addListener(ChannelFutureListener.CLOSE);
+		}
 	}
 
 	private String contentType(String fileExt) {
@@ -240,56 +262,4 @@ public class StaticFileResourceHandler extends SimpleChannelInboundHandler<FullH
 		fileExt2Mimes.put("z", "application/x-compress");
 		fileExt2Mimes.put("zip", "application/zip");
 	}
-
-
-//	private void process(ChannelHandlerContext ctx, FullHttpRequest msg, String uri, int dotPos) throws IOException {
-//		// System.out.print(" >>> " + getFile().getParent() + "/resources/public");
-//		String f = getFile().getParent() + "/resources/public" + uri;
-//		File file = new File(f);
-//		HttpVersion version = new HttpVersion("HTTP/1.1", false);
-//		HttpResponseStatus status;
-//		ByteBuf buf;
-//		if (!file.exists()) {
-//			ctx.fireChannelRead(msg.retain());
-//			return;
-//		}
-//		if (file.exists()) {
-//			logger.debug("file resource: {}", file);
-//			FileInputStream fin = new FileInputStream(file);
-//			ByteArrayOutputStream bout = new ByteArrayOutputStream((int) file.length());
-//			byte[] bs = new byte[1024];
-//			int len;
-//			while ((len = fin.read(bs)) != -1) {
-//				bout.write(bs, 0, len);
-//			}
-//			fin.close();
-//			buf = Unpooled.wrappedBuffer(bout.toByteArray()).retain();
-//			status = new HttpResponseStatus(200, "Ok");
-//		} else {
-//			java.io.InputStream ins = getClass().getResourceAsStream(uri);
-//			if (ins != null) {
-//				logger.debug("classpath resource:{}", uri);
-//				ByteArrayOutputStream bout = new ByteArrayOutputStream();
-//				byte[] bs = new byte[1024];
-//				int len;
-//				while ((len = ins.read(bs)) != -1) {
-//					bout.write(bs, 0, len);
-//				}
-//				ins.close();
-//				buf = Unpooled.wrappedBuffer(bout.toByteArray()).retain();
-//				status = new HttpResponseStatus(200, "Ok");
-//			} else {
-//				logger.warn("404:{}", file);
-//				buf = Unpooled.EMPTY_BUFFER;
-//				status = new HttpResponseStatus(404, "file not found!");
-//			}
-//		}
-//		DefaultFullHttpResponse httpResp = new DefaultFullHttpResponse(version, status, buf);
-//		HttpHeaders headers = httpResp.headers();
-//		headers.set(HttpHeaderNames.CONTENT_TYPE, contentType(uri.substring(dotPos + 1)));
-//		headers.set(HttpHeaderNames.SERVER, SERVER_NAME);
-//		// headers.set(HttpHeaderNames.DATE, date);
-//		headers.set(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(buf.readableBytes()));
-//		ctx.writeAndFlush(httpResp).addListener(ChannelFutureListener.CLOSE);
-//	}
 }

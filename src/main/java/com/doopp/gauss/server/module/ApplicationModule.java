@@ -4,6 +4,7 @@ import com.doopp.gauss.api.service.AccountService;
 import com.doopp.gauss.api.service.impl.AccountServiceImpl;
 import com.doopp.gauss.common.util.IdWorker;
 import com.doopp.gauss.server.application.ApplicationProperties;
+import com.doopp.gauss.server.filter.SessionFilter;
 import com.google.inject.*;
 import freemarker.template.*;
 import io.netty.channel.EventLoopGroup;
@@ -14,6 +15,7 @@ public class ApplicationModule extends AbstractModule {
 	@Override
 	public void configure() {
 		bind(AccountService.class).to(AccountServiceImpl.class);
+		bind(SessionFilter.class).in(Scopes.SINGLETON);
 	}
 
 	@Singleton

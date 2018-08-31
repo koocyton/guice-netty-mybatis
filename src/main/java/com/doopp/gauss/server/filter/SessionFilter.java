@@ -14,6 +14,8 @@ import io.netty.util.CharsetUtil;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
+import java.net.URI;
+
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 
 public class SessionFilter {
@@ -23,16 +25,18 @@ public class SessionFilter {
     @Inject
     private AccountService accountService;
 
-    @Inject
-    private RequestDispatcher requestProcessor;
+    public boolean doFilter(ChannelHandlerContext ctx, FullHttpRequest httpRequest, FullHttpResponse httpResponse) {
 
-    public void doFilter(ChannelHandlerContext ctx, FullHttpRequest httpRequest, FullHttpResponse httpResponse) {
-
-        String uri = httpRequest.uri();
+        String uri = URI.create(httpRequest.uri()).getPath();
 
         // 不过滤的uri
         String[] notFilters = new String[]{
-            "/api",
+                "/login",
+                "/register",
+                "/logout",
+                "/test/testCookie",
+                "/test/testHeader",
+                "/test/testGrpcClient",
         };
 
         // 是否过滤
@@ -46,21 +50,20 @@ public class SessionFilter {
             }
         }
 
-        logger.info((doFilter) ? "doFilter " : "notDoFilter " + uri +"");
+        logger.info((doFilter) ? "{} [filter]" : "{} [unFilter]", uri);
 
         // 执行过滤 验证通过的会话
         try {
             if (doFilter) {
                 // 从 header 里拿到 access token
                 String sessionToken = httpRequest.headers().get("session-token");
-
                 // 如果 token 存在，反解 token
                 if (sessionToken != null) {
                     User user = accountService.userByToken(sessionToken);
                     // 如果能找到用户
                     if (user != null) {
                         ctx.channel().attr(AttributeKey.valueOf("currentUser")).set(user);
-                        requestProcessor.triggerAction(httpRequest, httpResponse);
+                        return true;
                     }
                     // 如果不能找到用户
                     else {
@@ -74,13 +77,14 @@ public class SessionFilter {
             }
             // 不用校验
             else {
-                requestProcessor.triggerAction(httpRequest, httpResponse);
+                return true;
             }
         }
         catch (Exception e) {
             e.printStackTrace();
             writeErrorResponse(HttpResponseStatus.BAD_GATEWAY, httpResponse, e.getMessage());
         }
+        return false;
     }
 
     private static void writeErrorResponse(HttpResponseStatus responseStatus, FullHttpResponse httpResponse, String message) {
