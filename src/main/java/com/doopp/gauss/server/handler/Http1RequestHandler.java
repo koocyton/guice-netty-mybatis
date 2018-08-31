@@ -16,6 +16,8 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 
 public class Http1RequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
+    private static Logger logger = LoggerFactory.getLogger(StaticFileResourceHandler.class);
+
     @Inject
     private Injector injector;
 
@@ -60,6 +62,13 @@ public class Http1RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
         if (!HttpUtil.isKeepAlive(httpRequest)) {
             future.addListener(ChannelFutureListener.CLOSE);
         }
-        ctx.fireChannelReadComplete();
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        Channel incoming = ctx.channel();
+        logger.info("Client: {} 异常", incoming.remoteAddress());
+        cause.printStackTrace();
+        ctx.close();
     }
 }

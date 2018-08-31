@@ -82,7 +82,7 @@ public class NettyServer {
                 // webSocket connect
                 pipeline.addLast(new WebSocketServerCompressionHandler());
                 pipeline.addLast(new WebSocketServerProtocolHandler(applicationProperties.s("server.webSocket"), null, true));
-                pipeline.addLast(new WebSocketFrameHandler());
+                pipeline.addLast(injector.getInstance(WebSocketFrameHandler.class));
             }
         };
     }

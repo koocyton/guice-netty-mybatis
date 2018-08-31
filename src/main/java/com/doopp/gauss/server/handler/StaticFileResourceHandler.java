@@ -4,10 +4,7 @@ import com.doopp.gauss.server.application.ApplicationProperties;
 import com.google.inject.Inject;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +64,6 @@ public class StaticFileResourceHandler extends SimpleChannelInboundHandler<FullH
         if (!HttpUtil.isKeepAlive(httpRequest)) {
             future.addListener(ChannelFutureListener.CLOSE);
         }
-        ctx.fireChannelReadComplete();
     }
 
     private String contentType(String fileExt) {
@@ -267,5 +263,13 @@ public class StaticFileResourceHandler extends SimpleChannelInboundHandler<FullH
         fileExt2Mimes.put("xwd", "image/x-xwindowdump");
         fileExt2Mimes.put("z", "application/x-compress");
         fileExt2Mimes.put("zip", "application/zip");
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        Channel incoming = ctx.channel();
+        logger.info("Client: {} 异常", incoming.remoteAddress());
+        cause.printStackTrace();
+        ctx.close();
     }
 }
