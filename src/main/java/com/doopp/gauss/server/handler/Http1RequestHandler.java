@@ -1,5 +1,6 @@
 package com.doopp.gauss.server.handler;
 
+import com.doopp.gauss.server.application.ApplicationProperties;
 import com.doopp.gauss.server.dispatcher.RequestDispatcher;
 import com.doopp.gauss.server.filter.SessionFilter;
 import com.google.inject.Inject;
@@ -9,6 +10,8 @@ import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
+
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 
 public class Http1RequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
@@ -16,8 +19,21 @@ public class Http1RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
     @Inject
     private Injector injector;
 
+    @Inject
+    private ApplicationProperties applicationProperties;
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest httpRequest) throws Exception {
+
+        // 取出 request uri 对应调用的 controller 和 method
+        URI uri = URI.create(httpRequest.uri());
+        // uri path
+        String requirePath = uri.getPath();
+        // web socket 地址的话
+        if (requirePath.equals(applicationProperties.s("server.webSocket"))) {
+            ctx.fireChannelRead(httpRequest.retain());
+            return;
+        }
 
         if (HttpUtil.is100ContinueExpected(httpRequest)) {
             FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE);
@@ -44,5 +60,6 @@ public class Http1RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
         if (!HttpUtil.isKeepAlive(httpRequest)) {
             future.addListener(ChannelFutureListener.CLOSE);
         }
+        ctx.fireChannelReadComplete();
     }
 }

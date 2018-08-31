@@ -29,6 +29,12 @@ public class IdWorker {
 
     private long lastTimestamp = -1L;
 
+    public IdWorker() {
+        this.workerId = 1;
+        this.datacenterId = 1;
+        logger.info("worker starting. timestamp left shift {}, datacenter id bits {}, worker id bits {}, sequence bits {}, workerid {}", timestampLeftShift, datacenterIdBits, workerIdBits, sequenceBits, workerId);
+    }
+
     public IdWorker(long workerId, long datacenterId) {
         // sanity check for workerId
         if (workerId > maxWorkerId || workerId < 0) {
@@ -39,7 +45,7 @@ public class IdWorker {
         }
         this.workerId = workerId;
         this.datacenterId = datacenterId;
-        logger.info(String.format("worker starting. timestamp left shift %d, datacenter id bits %d, worker id bits %d, sequence bits %d, workerid %d", timestampLeftShift, datacenterIdBits, workerIdBits, sequenceBits, workerId));
+        logger.info("worker starting. timestamp left shift {}, datacenter id bits {}, worker id bits {}, sequence bits {}, workerid {}", timestampLeftShift, datacenterIdBits, workerIdBits, sequenceBits, workerId);
     }
 
     public synchronized long nextId() {

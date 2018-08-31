@@ -63,6 +63,19 @@ jar {
         }
     }
 }
+
+// Inform IDEs like IntelliJ IDEA, Eclipse or NetBeans about the generated code.
+sourceSets {
+    main {
+        // java {
+        //    srcDirs '../service-user'
+        // }
+        resources {
+            srcDirs 'src/main/resources/public'
+        }
+    }
+}
+
 task clear(type:Delete){
     delete 'build','target'
 }

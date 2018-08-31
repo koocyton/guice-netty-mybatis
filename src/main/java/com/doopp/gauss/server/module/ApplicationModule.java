@@ -14,7 +14,7 @@ public class ApplicationModule extends AbstractModule {
 
 	@Override
 	public void configure() {
-		bind(AccountService.class).to(AccountServiceImpl.class);
+		bind(AccountService.class).to(AccountServiceImpl.class).in(Scopes.SINGLETON);
 		bind(SessionFilter.class).in(Scopes.SINGLETON);
 	}
 

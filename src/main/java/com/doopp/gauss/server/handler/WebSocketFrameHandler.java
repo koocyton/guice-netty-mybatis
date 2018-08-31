@@ -86,27 +86,27 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 //        handle(ctx, request);
     }
 //
-//    @Override
-//    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {  // (2)
-//        // Channel incoming = ctx.channel();
-//        channels.add(ctx.channel());
-//        ctx.channel().writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + ctx.channel().remoteAddress() + " 加入"));
-////        for (Channel channel : channels) {
-////            channel.writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + incoming.remoteAddress() + " 加入"));
-////        }
-//        System.out.println("\nClient:"+ctx.channel().remoteAddress() +"加入");
-//    }
-//
-//    @Override
-//    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {  // (3)
-//        Channel incoming = ctx.channel();
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {  // (2)
+        // Channel incoming = ctx.channel();
+        channels.add(ctx.channel());
+        ctx.channel().writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + ctx.channel().remoteAddress() + " 加入"));
 //        for (Channel channel : channels) {
-//            channel.writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + incoming.remoteAddress() + " 离开"));
+//            channel.writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + incoming.remoteAddress() + " 加入"));
 //        }
-//        System.out.println("\nClient:"+incoming.remoteAddress() +"离开");
-//        channels.remove(ctx.channel());
-//    }
-//
+        System.out.println("\nClient:"+ctx.channel().remoteAddress() +"加入");
+    }
+
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {  // (3)
+        Channel incoming = ctx.channel();
+        for (Channel channel : channels) {
+            channel.writeAndFlush(new TextWebSocketFrame("\n[SERVER] - " + incoming.remoteAddress() + " 离开"));
+        }
+        System.out.println("\nClient:"+incoming.remoteAddress() +"离开");
+        channels.remove(ctx.channel());
+    }
+
 //    @Override
 //    public void channelActive(ChannelHandlerContext ctx) throws Exception { // (5)
 //        Channel incoming = ctx.channel();

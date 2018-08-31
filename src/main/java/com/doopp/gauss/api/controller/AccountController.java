@@ -5,6 +5,7 @@ import com.doopp.gauss.common.entity.User;
 import com.doopp.gauss.common.exception.GaussException;
 import com.doopp.gauss.server.annotation.RequestParam;
 import com.doopp.gauss.server.annotation.ResponseBody;
+import com.doopp.gauss.server.freemarker.ModelMap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -15,6 +16,12 @@ public class AccountController {
 
     @Inject
     private AccountService accountService;
+
+
+    public String loginPage(ModelMap modelMap) {
+        modelMap.addAttribute("hello", "hello");
+        return "hello";
+    }
 
     @ResponseBody
     public String login(@RequestParam("account") String account, @RequestParam("password") String password) throws GaussException {

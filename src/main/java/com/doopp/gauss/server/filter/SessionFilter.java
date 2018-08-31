@@ -2,8 +2,8 @@ package com.doopp.gauss.server.filter;
 
 import com.doopp.gauss.api.service.AccountService;
 import com.doopp.gauss.common.entity.User;
-import com.doopp.gauss.server.dispatcher.RequestDispatcher;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -32,11 +32,8 @@ public class SessionFilter {
         // 不过滤的uri
         String[] notFilters = new String[]{
                 "/login",
-                "/register",
-                "/logout",
-                "/test/testCookie",
-                "/test/testHeader",
-                "/test/testGrpcClient",
+                "/api/login",
+                "/api/register",
         };
 
         // 是否过滤
