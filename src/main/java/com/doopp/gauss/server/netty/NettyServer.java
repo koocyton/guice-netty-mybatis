@@ -15,6 +15,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
+import io.netty.handler.codec.http2.Http2ServerUpgradeCodec;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
@@ -43,7 +44,7 @@ public class NettyServer {
 
         String host = applicationProperties.s("server.host");
         int port = applicationProperties.i("server.port");
-        int sshPort = applicationProperties.i("server.sshPort");
+        int sslPort = applicationProperties.i("server.sslPort");
 
         try {
             ServerBootstrap b = new ServerBootstrap();
@@ -54,10 +55,10 @@ public class NettyServer {
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-            System.out.print(">>> Running ServerBootstrap on " + host + ":" + port + "\n");
+            System.out.print(">>> Running ServerBootstrap on " + host + ":" + port + "/" + sslPort + "\n");
 
             Channel ch80 = b.bind(host, port).sync().channel();
-            Channel ch443 = b.bind(host, sshPort).sync().channel();
+            Channel ch443 = b.bind(host, sslPort).sync().channel();
 
             ch80.closeFuture().sync();
             ch443.closeFuture().sync();
@@ -76,10 +77,9 @@ public class NettyServer {
 
                 ChannelPipeline pipeline = ch.pipeline();
 
-                if (ch.localAddress().getPort()==443) {
+                if (ch.localAddress().getPort() == applicationProperties.i("server.sslPort")) {
                     SSLContext sslContext = SSLContext.getInstance("TLS");
                     sslContext.init(getKeyManagers(), null, null);
-
                     SSLEngine sslEngine = sslContext.createSSLEngine();
                     sslEngine.setUseClientMode(false);
                     ch.pipeline().addLast(new SslHandler(sslEngine));
